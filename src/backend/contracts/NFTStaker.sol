@@ -1,33 +1,29 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "erc721a/contracts/ERC721A.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "hardhat/console.sol";
 
 contract NFTStaker is ERC721Holder, ReentrancyGuard, Ownable {
-    ERC721A public parentNFT;
-    ERC20 public rewardsToken;
+    ERC721 public stakedNft;
+    ERC721 public rewardNft;
+
+    uint256 stakeMinimum = 1;
+    uint256 stakeMaximum = 10;
+    uint256 stakePeriodInDays = 30;
+
+    mapping (uint256 => bool) claimedNfts; // After claiming, that staked NFTs wont be able to be staked again ever
 
     // Staker must be structured this way because of the important function getStakedTokens() below that returns the tokenIds array directly.
     struct Staker { 
         uint256[] tokenIds;
         uint256[] timestamps;
-        Mission[] missions;
-        uint256 tokensToClaim;
         bool[] tokensReceived;
     }
 
-    struct Mission {
-        uint256 startTimestamp;
-        uint256 duration; // In hours
-    }
-
-    uint256 public hoursForUnitReward; // Hours needed to be rewarded one unit of token
-    Mission currentMission;
     mapping(address => Staker) private stakers;
     
     event StakeSuccessful(
@@ -37,35 +33,21 @@ contract NFTStaker is ERC721Holder, ReentrancyGuard, Ownable {
     
     event UnstakeSuccessful(
         uint256 tokenId,
-        uint256 reward
+        bool rewardClaimed
     );
 
-    constructor(address nftAddress) {
-        parentNFT = ERC721A(nftAddress);
-        hoursForUnitReward = 4; // 1 unit rewarded every 4 hours
-    }
+    constructor(address _ownerAddress, address _stakedNftAddress, address _rewardNftAddress) {
+        stakedNft = ERC721(_stakedNftAddress);
+        rewardNft = ERC721(_rewardNftAddress);
 
-    function setOwnerAndTokenAddress(address _newOwner, address _tokenAddress) external onlyOwner {
-        rewardsToken = ERC20(_tokenAddress);
-        _transferOwnership(_newOwner);
-    }
-
-    function startMission(uint256 _duration) external onlyOwner {
-        currentMission.startTimestamp = block.timestamp;
-        currentMission.duration = _duration * 3600; // hours to seconds
-    }
-
-    function isMissionOngoing() view public returns(bool) {
-        return currentMission.startTimestamp > 0 && (block.timestamp - currentMission.startTimestamp < currentMission.duration);
+        transferOwnership(_ownerAddress);
     }
 
     function stake(uint256 _tokenId) public nonReentrant {
-        require(isMissionOngoing(), "There is no ongoing mission!");
         stakers[msg.sender].tokenIds.push(_tokenId);
         stakers[msg.sender].timestamps.push(block.timestamp);
-        stakers[msg.sender].missions.push(currentMission);
         stakers[msg.sender].tokensReceived.push(false);
-        parentNFT.safeTransferFrom(msg.sender, address(this), _tokenId);
+        stakedNft.safeTransferFrom(msg.sender, address(this), _tokenId);
 
         emit StakeSuccessful(_tokenId, block.timestamp);
     }
@@ -88,95 +70,42 @@ contract NFTStaker is ERC721Holder, ReentrancyGuard, Ownable {
         return (_tokenIndex, _foundIndex);
     }
 
-    function getRewardForTokenIndexStaker(uint256 _tokenIndex, address _stakerAddress) private view returns(uint256) {
-        Staker memory _staker = stakers[_stakerAddress];
-
-        // If the player unstakes later than the end of the mission, don't count the time after that
-        uint256 _missionEndTimestamp = _staker.missions[_tokenIndex].startTimestamp + _staker.missions[_tokenIndex].duration;
-        uint256 _leaveMissionTimestamp = block.timestamp > _missionEndTimestamp ? _missionEndTimestamp : block.timestamp;
-        // Handout reward depending on the stakingTime
-        uint256 _stakingTime = _leaveMissionTimestamp - _staker.timestamps[_tokenIndex];
-
-        uint256 _hoursPassed = _stakingTime / 3600;
-        uint256 _reward = _hoursPassed / hoursForUnitReward;
-
-        return _reward;
-    }
-
     function unstake(uint256 _tokenId) public nonReentrant {
         Staker memory _staker = stakers[msg.sender];
         (uint256 _tokenIndex, bool _foundIndex) = findIndexForTokenStaker(_tokenId, msg.sender);
         require(_foundIndex, "Index not found for this staker.");
 
-        uint256 _reward = getRewardForTokenIndexStaker(_tokenIndex, msg.sender);
-
-        bool _missionIsOver = isSpecificMissionOver(_staker.missions[_tokenIndex].startTimestamp, 
-                                                    _staker.missions[_tokenIndex].duration, 
-                                                    block.timestamp);
-
         // Unstake NFT from this smart contract
-        parentNFT.safeTransferFrom(address(this), msg.sender, _tokenId);
+        stakedNft.safeTransferFrom(address(this), msg.sender, _tokenId);
 
-        // Only reward if the mission is over
-        if (_missionIsOver && _staker.tokensReceived[_tokenIndex] == false) {
-            stakers[msg.sender].tokensReceived[_tokenIndex] = true;
-            stakers[msg.sender].tokensToClaim += _reward;
-        }
+        bool stakingTimeElapsed = false;
+        // if (_staker.tokensReceived[_tokenIndex] == false) {
+        //     stakers[msg.sender].tokensReceived[_tokenIndex] = true;
+        //     stakers[msg.sender].tokensToClaim += _reward;
+        // }
         
         removeStakerElement(_tokenIndex, _staker.tokenIds.length - 1);
 
-        emit UnstakeSuccessful(_tokenId, _reward);
-    }
-
-    function sendAllInactiveToMission(uint256[] memory _tokenIds) public nonReentrant {
-        require(isMissionOngoing(), "There is no ongoing mission!");
-        
-        uint256 _tokensIdsLength = _tokenIds.length;
-        uint256 _currentTimestamp = block.timestamp;
-        for (uint256 i = 0; i < _tokensIdsLength;) {
-            
-            (uint256 _tokenIndex, bool _foundIndex) = findIndexForTokenStaker(_tokenIds[i], msg.sender);
-            require(_foundIndex, "Index not found for this staker.");
-            require(isSpecificMissionOver(stakers[msg.sender].missions[_tokenIndex].startTimestamp, stakers[msg.sender].missions[_tokenIndex].duration, _currentTimestamp), 
-                "This Gelato is still on an ongoing mission!");
-            
-            uint256 _reward = getRewardForTokenIndexStaker(_tokenIndex, msg.sender);
-            
-            // Add reward from last mission
-            if (stakers[msg.sender].tokensReceived[_tokenIndex] == false) {
-                stakers[msg.sender].tokensToClaim += _reward;
-            }
-            
-            // Send to next mission
-            stakers[msg.sender].timestamps[_tokenIndex] = _currentTimestamp;
-            stakers[msg.sender].missions[_tokenIndex] = currentMission;
-            stakers[msg.sender].tokensReceived[_tokenIndex] = false;
-
-            unchecked { ++i; }
-        }
-    }
-
-    function isSpecificMissionOver(uint256 _timestamp, uint256 _duration, uint256 _currentTimestamp) internal pure returns(bool) {
-        return _timestamp + _duration < _currentTimestamp;
+        emit UnstakeSuccessful(_tokenId, stakingTimeElapsed);
     }
 
     function claimReward() external {
-        uint256 _reward = getRewardToClaim(msg.sender);
-        require(_reward > 0, "No tokens to claim.");
+        // uint256 _reward = getRewardToClaim(msg.sender);
+        // require(_reward > 0, "No tokens to claim.");
 
-        if (rewardsToken.transfer(msg.sender, _reward) == true) {
-            uint256 _stakedTokensLength = getStakedTokens(msg.sender).length;
-            uint256 _currentTimestamp = block.timestamp;
-            for (uint256 i = 0; i < _stakedTokensLength;) {
-                bool _isMissionOver = isSpecificMissionOver(stakers[msg.sender].missions[i].startTimestamp, stakers[msg.sender].missions[i].duration, _currentTimestamp);
-                if (_isMissionOver) { // Don't mark as claimed if the next mission has already been started
-                    stakers[msg.sender].tokensReceived[i] = true;
-                }
-                unchecked { ++i; }
-            }
-            stakers[msg.sender].tokensToClaim = 0;
-        }
-        else revert();
+        // if (rewardsToken.transfer(msg.sender, _reward) == true) {
+        //     uint256 _stakedTokensLength = getStakedTokens(msg.sender).length;
+        //     uint256 _currentTimestamp = block.timestamp;
+        //     for (uint256 i = 0; i < _stakedTokensLength;) {
+        //         bool _isMissionOver = isSpecificMissionOver(stakers[msg.sender].missions[i].startTimestamp, stakers[msg.sender].missions[i].duration, _currentTimestamp);
+        //         if (_isMissionOver) { // Don't mark as claimed if the next mission has already been started
+        //             stakers[msg.sender].tokensReceived[i] = true;
+        //         }
+        //         unchecked { ++i; }
+        //     }
+        //     stakers[msg.sender].tokensToClaim = 0;
+        // }
+        // else revert();
     }
 
     function removeStakerElement(uint256 _tokenIndex, uint256 _lastIndex) internal {
@@ -185,9 +114,6 @@ contract NFTStaker is ERC721Holder, ReentrancyGuard, Ownable {
 
         stakers[msg.sender].tokenIds[_tokenIndex] = stakers[msg.sender].tokenIds[_lastIndex];
         stakers[msg.sender].tokenIds.pop();
-
-        stakers[msg.sender].missions[_tokenIndex] = stakers[msg.sender].missions[_lastIndex];
-        stakers[msg.sender].missions.pop();
 
         stakers[msg.sender].tokensReceived[_tokenIndex] = stakers[msg.sender].tokensReceived[_lastIndex];
         stakers[msg.sender].tokensReceived.pop();
@@ -210,46 +136,24 @@ contract NFTStaker is ERC721Holder, ReentrancyGuard, Ownable {
     function getStakedTimestamps(address _user) public view returns (uint256[] memory timestamps) {
         return stakers[_user].timestamps;
     }
-    
-    function getStakedMissions(address _user) public view returns (Mission[] memory missions) {
-        return stakers[_user].missions;
-    }
 
-    // Frontend purposes only
-    function getRewardFromActiveMission(address _user) external view returns (uint256) {
-        Staker memory _staker = stakers[_user];
-        uint256 _rewardFromActiveMission = 0;
-        uint256 _stakedTokensLength = getStakedTokens(_user).length;
-
-        for (uint256 i = 0; i < _stakedTokensLength;) {
-            if (!_staker.tokensReceived[i]) {
-                _rewardFromActiveMission += (_staker.missions[i].duration / 3600) / hoursForUnitReward;
-            }
-            unchecked { ++i; }
-        }
-
-        return _rewardFromActiveMission;
-    }
-    
     function getRewardToClaim(address _user) public view returns (uint256) {
-        uint256 _tokensToClaim = stakers[_user].tokensToClaim;
+        return 0;
 
-        // Find out if some gelatos' missions are over and tokens were not received for them yet
-        uint256 _stakedTokensLength = getStakedTokens(_user).length;
+        // uint256 _tokensToClaim = stakers[_user].tokensToClaim;
 
-        uint256 _currentTimestamp = block.timestamp;
-        for (uint256 i = 0; i < _stakedTokensLength;) {
-            if (!stakers[_user].tokensReceived[i] && isSpecificMissionOver(stakers[_user].missions[i].startTimestamp, stakers[_user].missions[i].duration, _currentTimestamp)) {
-                _tokensToClaim += getRewardForTokenIndexStaker(i, _user);
-            }
-            unchecked { ++i; }
-        }
+        // // Find out if some gelatos' missions are over and tokens were not received for them yet
+        // uint256 _stakedTokensLength = getStakedTokens(_user).length;
 
-        return _tokensToClaim;
+        // uint256 _currentTimestamp = block.timestamp;
+        // for (uint256 i = 0; i < _stakedTokensLength;) {
+        //     if (!stakers[_user].tokensReceived[i] && isSpecificMissionOver(stakers[_user].missions[i].startTimestamp, stakers[_user].missions[i].duration, _currentTimestamp)) {
+        //         _tokensToClaim += getRewardForTokenIndexStaker(i, _user);
+        //     }
+        //     unchecked { ++i; }
+        // }
+
+        // return _tokensToClaim;
     }
 
-    function setHoursForUnitReward(uint256 _hoursForUnitReward) public onlyOwner {
-        require(_hoursForUnitReward > 0, "Can't set to 0");
-        hoursForUnitReward = _hoursForUnitReward;
-    }
 }
