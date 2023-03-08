@@ -55,9 +55,11 @@ contract NFTStaker is ERC721Holder, ReentrancyGuard, Ownable {
 
         for(uint256 i = 0; i < _quantity; i ++) {
             require(claimedNfts[_tokenIds[i]] == false, "NFT already claimed");
+            require(stakedNft.ownerOf(_tokenIds[i]) == msg.sender, "You do not own this Nft");
         }
 
         for(uint256 i = 0; i < _quantity; i ++) {
+            stakedNft.safeTransferFrom(msg.sender, address(this), _tokenIds[i]);
             uint256 _placeholderTokenId = placeholderNft.mintNFT(msg.sender, _tokenIds[i]);
             stakers[msg.sender].tokenIds.push(_tokenIds[i]);
             stakers[msg.sender].placeholderTokenIds.push(_placeholderTokenId);
@@ -93,6 +95,7 @@ contract NFTStaker is ERC721Holder, ReentrancyGuard, Ownable {
             (uint256 _tokenIndex, bool _foundIndex) = findIndexForTokenStaker(_tokenIds[i], msg.sender);
             require(_foundIndex, "Index not found for this staker.");
 
+            stakedNft.safeTransferFrom(address(this), msg.sender, _tokenIds[i]);
             if (placeholderNft.ownerOf(stakers[msg.sender].placeholderTokenIds[i]) == msg.sender) {
                 placeholderNft.safeTransferFrom(
                     msg.sender, 0x000000000000000000000000000000000000dEaD, stakers[msg.sender].placeholderTokenIds[i]);

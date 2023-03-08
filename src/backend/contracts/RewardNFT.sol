@@ -11,7 +11,7 @@ contract RewardNFT is ERC721, Pausable, Ownable {
     uint256 private _totalSupply = 0;
     address private _stakingContract;
 
-    constructor(string memory name, string memory symbol) ERC721(name, symbol) {}
+    constructor() ERC721("Reward Nft", "RN") {}
 
     // Mint an NFT with an incremental ID
     function mintNFT(address _user, uint256 assetId) external onlyStakingContract {
