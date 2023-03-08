@@ -23,9 +23,7 @@ contract RewardNFT is ERC721, Pausable, Ownable {
         require(_exists(_tokenId), 'ERC721Metadata: URI query for nonexistent token');
 
         string memory currentBaseURI = _baseURI();
-        return bytes(currentBaseURI).length > 0
-            ? string(abi.encodePacked(currentBaseURI, Strings.toString(_tokenId), ".json"))
-            : '';
+        return string(abi.encodePacked(currentBaseURI, Strings.toString(_tokenId), ".json"));
     }
     
     modifier onlyStakingContract() {
