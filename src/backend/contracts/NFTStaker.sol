@@ -6,11 +6,13 @@ import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "hardhat/console.sol";
-import "./NFT.sol";
+import "./RewardNFT.sol";
+import "./PlaceholderNFT.sol";
 
 contract NFTStaker is ERC721Holder, ReentrancyGuard, Ownable {
-    NFT public stakedNft;
-    NFT public rewardNft;
+    ERC721 public stakedNft;
+    PlaceholderNFT public placeholderNft;
+    RewardNFT public rewardNft;
 
     uint256 stakeMinimum = 1;
     uint256 stakeMaximum = 10;
@@ -20,6 +22,7 @@ contract NFTStaker is ERC721Holder, ReentrancyGuard, Ownable {
 
     struct Staker { 
         uint256[] tokenIds;
+        uint256[] placeholderTokenIds;
         uint256[] timestamps;
     }
 
@@ -36,29 +39,31 @@ contract NFTStaker is ERC721Holder, ReentrancyGuard, Ownable {
         bool rewardClaimed
     );
 
-    constructor(address _ownerAddress, address _stakedNftAddress, address _rewardNftAddress) {
-        stakedNft = NFT(_stakedNftAddress);
-        rewardNft = NFT(_rewardNftAddress);
+    constructor(address _ownerAddress, address _stakedNftAddress, address _placeholderNftAddress, address _rewardNftAddress) {
+        stakedNft = ERC721(_stakedNftAddress);
+        placeholderNft = PlaceholderNFT(_placeholderNftAddress);
+        rewardNft = RewardNFT(_rewardNftAddress);
 
         transferOwnership(_ownerAddress);
     }
 
-    function stake(uint256 _quantity) public nonReentrant {
+    // take list of stake Nft, mint same amount of placeHolderNft
+    // burning optional (only if there)
+    function stake(uint256[] memory _tokenIds) public nonReentrant {
+        uint256 _quantity = _tokenIds.length;
         require(_quantity >= stakeMinimum && _quantity <= stakeMaximum, "Stake amount incorrect");
-        uint256 _previousSupply = stakedNft.totalSupply();
 
         for(uint256 i = 0; i < _quantity; i ++) {
-            require(claimedNfts[_previousSupply + i] == false, "NFT already claimed");
+            require(claimedNfts[_tokenIds[i]] == false, "NFT already claimed");
         }
 
-        stakedNft.mint(_quantity);
         for(uint256 i = 0; i < _quantity; i ++) {
-            uint256 _tokenId = _previousSupply + i;
-            stakedNft.safeTransferFrom(address(this), msg.sender, _tokenId);
-            stakers[msg.sender].tokenIds.push(_tokenId);
+            uint256 _placeholderTokenId = placeholderNft.mintNFT(msg.sender, _tokenIds[i]);
+            stakers[msg.sender].tokenIds.push(_tokenIds[i]);
+            stakers[msg.sender].placeholderTokenIds.push(_placeholderTokenId);
             stakers[msg.sender].timestamps.push(block.timestamp);
 
-            emit StakeSuccessful(_tokenId, block.timestamp);
+            emit StakeSuccessful(_tokenIds[i], block.timestamp);
         }
 
         stakersAddresses.push(msg.sender);
@@ -87,15 +92,16 @@ contract NFTStaker is ERC721Holder, ReentrancyGuard, Ownable {
         for(uint256 i = 0; i < _tokenIds.length; i++) {
             (uint256 _tokenIndex, bool _foundIndex) = findIndexForTokenStaker(_tokenIds[i], msg.sender);
             require(_foundIndex, "Index not found for this staker.");
-            stakedNft.safeTransferFrom(msg.sender, 0x000000000000000000000000000000000000dEaD, _tokenIds[i]);
+
+            if (placeholderNft.ownerOf(stakers[msg.sender].placeholderTokenIds[i]) == msg.sender) {
+                placeholderNft.safeTransferFrom(
+                    msg.sender, 0x000000000000000000000000000000000000dEaD, stakers[msg.sender].placeholderTokenIds[i]);
+            }
 
             bool stakingTimeElapsed = block.timestamp > stakers[msg.sender].timestamps[_tokenIndex] + stakePeriodInDays * 24 * 60 * 60;
             
             if (stakingTimeElapsed) {
-                uint256 _latestId = rewardNft.totalSupply();
-                rewardNft.mint(1);
-                rewardNft.safeTransferFrom(address(this), msg.sender, _latestId);
-
+                rewardNft.mintNFT(msg.sender, _tokenIds[i]);
                 claimedNfts[_tokenIds[i]] = true;
             }
             removeStakerElement(msg.sender, _tokenIndex, stakers[msg.sender].tokenIds.length - 1);
@@ -120,6 +126,10 @@ contract NFTStaker is ERC721Holder, ReentrancyGuard, Ownable {
             }
         }
         return false;
+    }
+    
+    function getPlaceholderTokenIds(address _user) public view returns (uint256[] memory tokenIds) {
+        return stakers[_user].placeholderTokenIds;
     }
     
     function getStakedTokens(address _user) public view returns (uint256[] memory tokenIds) {

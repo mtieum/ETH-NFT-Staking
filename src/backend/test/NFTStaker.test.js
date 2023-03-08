@@ -5,18 +5,21 @@ const toWei = (num) => ethers.utils.parseEther(num.toString())
 const fromWei = (num) => Math.round(ethers.utils.formatEther(num))
 
 describe("NFTStaker", async function() {
-    let deployer, addr1, addr2, nft, stakedNft, rewardNft, nftStaker
+    let deployer, addr1, addr2, nft, stakedNft, rewardNft, placeholderNft, nftStaker
     let teamWallet = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 
     beforeEach(async function() {
-        const NFT = await ethers.getContractFactory("NFT");
+        const QuirkiesTestnet = await ethers.getContractFactory("QuirkiesTestnet"); // staked NFT
+        const RewardNFT = await ethers.getContractFactory("RewardNFT");
+        const PlaceholderNFT = await ethers.getContractFactory("PlaceholderNFT");
         const NFTStaker = await ethers.getContractFactory("NFTStaker");
 
         [deployer, addr1, addr2] = await ethers.getSigners();
         whitelist = [addr1.address, addr2.address]
 
-        stakedNft = await NFT.deploy();
-        rewardNft = await NFT.deploy();
+        stakedNft = await QuirkiesTestnet.deploy();
+        rewardNft = await RewardNFT.deploy();
+        placeholderNft = await PlaceholderNFT.deploy();
         nftStaker = await NFTStaker.deploy(teamWallet, stakedNft.address, rewardNft.address);
     });
 

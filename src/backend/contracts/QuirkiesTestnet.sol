@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
-contract NFT is ERC721, Ownable, ReentrancyGuard {
+contract QuirkiesTestnet is ERC721, Ownable, ReentrancyGuard {
     uint256 public nftPrice = 0 ether;
     uint256 public totalSupply = 0;
 
