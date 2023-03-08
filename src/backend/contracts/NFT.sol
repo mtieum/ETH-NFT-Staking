@@ -29,7 +29,7 @@ contract NFT is ERC721, Ownable, ReentrancyGuard {
 
     function mint(uint256 _amount) public payable nonReentrant {
         require(salePublic == true, "Quirkies: Not Started");
-        require(_amount <= capPublic, "Quirkies: Amount Limit");
+        // require(_amount <= capPublic, "Quirkies: Amount Limit");
         require(
             totalSupply + _amount <= (nftLimit - reserved),
             "Quirkies: Sold Out"
@@ -52,7 +52,7 @@ contract NFT is ERC721, Ownable, ReentrancyGuard {
     }
 
     function _mint(uint256 _amount) internal {
-        require(tx.origin == msg.sender, "Quirkies: Self Mint Only");
+        // require(tx.origin == msg.sender, "Quirkies: Self Mint Only");
         require(
             totalSupply + _amount <= (nftLimit - reserved),
             "Quirkies: Sold Out"

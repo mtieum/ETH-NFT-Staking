@@ -72,6 +72,7 @@ contract NFTStaker is ERC721Holder, ReentrancyGuard, Ownable {
         
         uint256 _tokensLength = _staker.tokenIds.length;
         for(uint256 i = 0; i < _tokensLength; i ++) {
+            // console.log("_staker.tokenIds[i]: ", _staker.tokenIds[i]);
             if (_staker.tokenIds[i] == _tokenId) {
                 _tokenIndex = i;
                 _foundIndex = true;
@@ -83,33 +84,32 @@ contract NFTStaker is ERC721Holder, ReentrancyGuard, Ownable {
     }
 
     function unstake(uint256[] memory _tokenIds) public nonReentrant {
-        Staker memory _staker = stakers[msg.sender];
         for(uint256 i = 0; i < _tokenIds.length; i++) {
             (uint256 _tokenIndex, bool _foundIndex) = findIndexForTokenStaker(_tokenIds[i], msg.sender);
             require(_foundIndex, "Index not found for this staker.");
             stakedNft.safeTransferFrom(msg.sender, 0x000000000000000000000000000000000000dEaD, _tokenIds[i]);
 
-            bool stakingTimeElapsed = block.timestamp > _staker.timestamps[_tokenIndex] + stakePeriodInDays * 24 * 60 * 60;
+            bool stakingTimeElapsed = block.timestamp > stakers[msg.sender].timestamps[_tokenIndex] + stakePeriodInDays * 24 * 60 * 60;
             
             if (stakingTimeElapsed) {
-                rewardNft.mint(1);
                 uint256 _latestId = rewardNft.totalSupply();
+                rewardNft.mint(1);
                 rewardNft.safeTransferFrom(address(this), msg.sender, _latestId);
 
                 claimedNfts[_tokenIds[i]] = true;
             }
-            removeStakerElement(_tokenIndex, _staker.tokenIds.length - 1);
+            removeStakerElement(msg.sender, _tokenIndex, stakers[msg.sender].tokenIds.length - 1);
 
             emit UnstakeSuccessful(_tokenIds[i], stakingTimeElapsed);
         }
     }
 
-    function removeStakerElement(uint256 _tokenIndex, uint256 _lastIndex) internal {
-        stakers[msg.sender].timestamps[_tokenIndex] = stakers[msg.sender].timestamps[_lastIndex];
-        stakers[msg.sender].timestamps.pop();
+    function removeStakerElement(address _user, uint256 _tokenIndex, uint256 _lastIndex) internal {
+        stakers[_user].timestamps[_tokenIndex] = stakers[_user].timestamps[_lastIndex];
+        stakers[_user].timestamps.pop();
 
-        stakers[msg.sender].tokenIds[_tokenIndex] = stakers[msg.sender].tokenIds[_lastIndex];
-        stakers[msg.sender].tokenIds.pop();
+        stakers[_user].tokenIds[_tokenIndex] = stakers[_user].tokenIds[_lastIndex];
+        stakers[_user].tokenIds.pop();
     }
 
     function isTokenStaked(uint256 _tokenId) public view returns(bool) {

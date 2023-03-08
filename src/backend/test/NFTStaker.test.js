@@ -28,44 +28,36 @@ describe("NFTStaker", async function() {
             await expect(nftStaker.connect(addr1).stake(0)).to.be.revertedWith('Stake amount incorrect');
             await expect(nftStaker.connect(addr1).stake(11)).to.be.revertedWith('Stake amount incorrect');
 
-            // await nftStaker.connect(addr1).stake(8);
+            await nftStaker.connect(addr1).stake(3);
             
-            // expect((await nftStaker.getStakedTokens(addr1.address))[0]).to.equals(333);
+            expect((await nftStaker.getStakedTokens(addr1.address))[0]).to.equals(0);
+            expect((await nftStaker.getStakedTokens(addr1.address))[1]).to.equals(1);
+            expect((await nftStaker.getStakedTokens(addr1.address))[2]).to.equals(2);
 
-            // expect((await nft.ownerOf(333))).to.equals(nftStaker.address);
-            // expect((await token.balanceOf(addr1.address))).to.equals(0);
-            // expect((await token.balanceOf(nftStaker.address))).to.equals(stakerTokenAmount);
+            expect((await stakedNft.ownerOf(0))).to.equals(addr1.address);
+            expect((await stakedNft.ownerOf(1))).to.equals(addr1.address);
+            expect((await stakedNft.ownerOf(2))).to.equals(addr1.address);
+            expect((await stakedNft.balanceOf(addr1.address))).to.equals(3);
 
-            // // Unstake after 11 days
-            // const elevenDays = 11 * 24 * 60 * 60 + 10;
-            // await helpers.time.increase(elevenDays);
+            // Unstake after 10 days
+            const days = 10 * 24 * 60 * 60 + 10;
+            await helpers.time.increase(days);
 
-            // // await nftStaker.connect(addr1).unstake(333);
-
-            // const expectedReward = 10 * (24 / hoursForUnitReward);
-            // expect((await nftStaker.getRewardToClaim(addr1.address))).to.equals(expectedReward);
-            // await nftStaker.connect(addr1).claimReward();
-            // expect((await nft.ownerOf(333))).to.equals(nftStaker.address);
-
-            // // Expecting 50 units as reward
-            // console.log("Expected Reward: " + expectedReward)
-            // console.log("Staker actual new balance: " + fromWei(await token.balanceOf(addr1.address)))
-
-            // expect((await token.balanceOf(addr1.address))).to.equals(expectedReward);
-            // expect((await token.balanceOf(nftStaker.address))).to.equals(stakerTokenAmount - expectedReward);
+            await expect(nftStaker.connect(addr1).unstake([0, 1, 2])).to.be.revertedWith('ERC721: caller is not token owner or approved');
+            await stakedNft.connect(addr1).setApprovalForAll(nftStaker.address, true);
+            await expect(nftStaker.connect(addr1).unstake([0, 1, 3])).to.be.revertedWith('Index not found for this staker.');
+            await expect(nftStaker.connect(addr1).unstake([7])).to.be.revertedWith('Index not found for this staker.');
             
-            // expect((await nftStaker.getRewardToClaim(addr1.address))).to.equals(0);
-            // await expect(nftStaker.connect(addr1).claimReward()).to.be.revertedWith('No tokens to claim.');
-            
-            // await nftStaker.connect(addr1).unstake(333);
+            {
+                expect((await nftStaker.getStakedTokens(addr1.address))[0]).to.equals(0);
+                expect((await nftStaker.getStakedTokens(addr1.address))[1]).to.equals(1);
+                expect((await nftStaker.getStakedTokens(addr1.address))[2]).to.equals(2);
+                expect((await stakedNft.ownerOf(0))).to.equals(addr1.address);
+                expect((await stakedNft.ownerOf(1))).to.equals(addr1.address);
+                expect((await stakedNft.ownerOf(2))).to.equals(addr1.address);
+            }
 
-            // expect((await token.balanceOf(addr1.address))).to.equals(expectedReward);
-            // expect((await token.balanceOf(nftStaker.address))).to.equals(stakerTokenAmount - expectedReward);
-            
-            // await expect(nftStaker.connect(addr1).claimReward()).to.be.revertedWith('No tokens to claim.');
-
-            // expect((await token.balanceOf(addr1.address))).to.equals(expectedReward);
-            // expect((await token.balanceOf(nftStaker.address))).to.equals(stakerTokenAmount - expectedReward);
+            await nftStaker.connect(addr1).unstake([1]);
         })
 
         it("Should track staking wallets and display what is being staked currently", async function() {
