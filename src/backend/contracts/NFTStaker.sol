@@ -16,10 +16,8 @@ contract NFTStaker is ERC721Holder, ReentrancyGuard, Ownable {
     uint256 stakeMaximum = 10;
     uint256 stakePeriodInDays = 30;
 
-    mapping (uint256 => bool) claimedNfts; // After claiming, that staked NFTs wont be able to be staked again ever
+    mapping (uint256 => bool) claimedNfts;
 
-    // Staker must be structured this way because of the important function getStakedTokens()
-    // below that returns the tokenIds array directly.
     struct Staker { 
         uint256[] tokenIds;
         uint256[] timestamps;
