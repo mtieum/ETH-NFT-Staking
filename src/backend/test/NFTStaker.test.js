@@ -117,6 +117,22 @@ describe("NFTStaker", async function() {
         })
 
         it("Should track staking wallets and display what is being staked currently", async function() {
+            await stakedNft.connect(addr1).mint(3);
+            await stakedNft.connect(addr2).mint(3);
+            await stakedNft.connect(addr1).setApprovalForAll(nftStaker.address, true);
+            await stakedNft.connect(addr2).setApprovalForAll(nftStaker.address, true);
+
+            await nftStaker.connect(addr1).stake([2]);
+
+            expect((await nftStaker.getStakedTokens(addr1.address))[0]).to.equals(2);
+            expect((await nftStaker.getPlaceholderTokenIds(addr1.address))[0]).to.equals(0);
+            expect((await nftStaker.getStakerAddresses())[0]).to.equals(addr1.address);
+
+            await nftStaker.connect(addr2).stake([4]);
+
+            expect((await nftStaker.getStakedTokens(addr2.address))[0]).to.equals(4);
+            expect((await nftStaker.getPlaceholderTokenIds(addr2.address))[0]).to.equals(1);
+            expect((await nftStaker.getStakerAddresses())[1]).to.equals(addr2.address);
         })
     })
 })
