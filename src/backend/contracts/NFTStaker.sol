@@ -6,10 +6,11 @@ import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "hardhat/console.sol";
+import "./NFT.sol";
 
 contract NFTStaker is ERC721Holder, ReentrancyGuard, Ownable {
-    ERC721 public stakedNft;
-    ERC721 public rewardNft;
+    NFT public stakedNft;
+    NFT public rewardNft;
 
     uint256 stakeMinimum = 1;
     uint256 stakeMaximum = 10;
@@ -17,14 +18,15 @@ contract NFTStaker is ERC721Holder, ReentrancyGuard, Ownable {
 
     mapping (uint256 => bool) claimedNfts; // After claiming, that staked NFTs wont be able to be staked again ever
 
-    // Staker must be structured this way because of the important function getStakedTokens() below that returns the tokenIds array directly.
+    // Staker must be structured this way because of the important function getStakedTokens()
+    // below that returns the tokenIds array directly.
     struct Staker { 
         uint256[] tokenIds;
         uint256[] timestamps;
-        bool[] tokensReceived;
     }
 
     mapping(address => Staker) private stakers;
+    address[] stakersAddresses;
     
     event StakeSuccessful(
         uint256 tokenId,
@@ -37,19 +39,30 @@ contract NFTStaker is ERC721Holder, ReentrancyGuard, Ownable {
     );
 
     constructor(address _ownerAddress, address _stakedNftAddress, address _rewardNftAddress) {
-        stakedNft = ERC721(_stakedNftAddress);
-        rewardNft = ERC721(_rewardNftAddress);
+        stakedNft = NFT(_stakedNftAddress);
+        rewardNft = NFT(_rewardNftAddress);
 
         transferOwnership(_ownerAddress);
     }
 
-    function stake(uint256 _tokenId) public nonReentrant {
-        stakers[msg.sender].tokenIds.push(_tokenId);
-        stakers[msg.sender].timestamps.push(block.timestamp);
-        stakers[msg.sender].tokensReceived.push(false);
-        stakedNft.safeTransferFrom(msg.sender, address(this), _tokenId);
+    function stake(uint256 _quantity) public nonReentrant {
+        uint256 _previousSupply = stakedNft.totalSupply();
 
-        emit StakeSuccessful(_tokenId, block.timestamp);
+        for(uint256 i = 0; i < _quantity; i ++) {
+            require(claimedNfts[_previousSupply + i] == false, "NFT already claimed");
+        }
+
+        stakedNft.mint(_quantity);
+        for(uint256 i = 0; i < _quantity; i ++) {
+            uint256 _tokenId = _previousSupply + i;
+            stakedNft.safeTransferFrom(address(this), msg.sender, _tokenId);
+            stakers[msg.sender].tokenIds.push(_tokenId);
+            stakers[msg.sender].timestamps.push(block.timestamp);
+
+            emit StakeSuccessful(_tokenId, block.timestamp);
+        }
+
+        stakersAddresses.push(msg.sender);
     }
 
     function findIndexForTokenStaker(uint256 _tokenId, address _stakerAddress) private view returns(uint256, bool) {
@@ -70,42 +83,26 @@ contract NFTStaker is ERC721Holder, ReentrancyGuard, Ownable {
         return (_tokenIndex, _foundIndex);
     }
 
-    function unstake(uint256 _tokenId) public nonReentrant {
+    function unstake(uint256[] memory _tokenIds) public nonReentrant {
         Staker memory _staker = stakers[msg.sender];
-        (uint256 _tokenIndex, bool _foundIndex) = findIndexForTokenStaker(_tokenId, msg.sender);
-        require(_foundIndex, "Index not found for this staker.");
+        for(uint256 i = 0; i < _tokenIds.length; i++) {
+            (uint256 _tokenIndex, bool _foundIndex) = findIndexForTokenStaker(_tokenIds[i], msg.sender);
+            require(_foundIndex, "Index not found for this staker.");
+            stakedNft.safeTransferFrom(msg.sender, 0x000000000000000000000000000000000000dEaD, _tokenIds[i]);
 
-        // Unstake NFT from this smart contract
-        stakedNft.safeTransferFrom(address(this), msg.sender, _tokenId);
+            bool stakingTimeElapsed = block.timestamp > _staker.timestamps[_tokenIndex] + stakePeriodInDays * 24 * 60 * 60;
+            
+            if (stakingTimeElapsed) {
+                rewardNft.mint(1);
+                uint256 _latestId = rewardNft.totalSupply();
+                rewardNft.safeTransferFrom(address(this), msg.sender, _latestId);
 
-        bool stakingTimeElapsed = false;
-        // if (_staker.tokensReceived[_tokenIndex] == false) {
-        //     stakers[msg.sender].tokensReceived[_tokenIndex] = true;
-        //     stakers[msg.sender].tokensToClaim += _reward;
-        // }
-        
-        removeStakerElement(_tokenIndex, _staker.tokenIds.length - 1);
+                claimedNfts[_tokenIds[i]] = true;
+            }
+            removeStakerElement(_tokenIndex, _staker.tokenIds.length - 1);
 
-        emit UnstakeSuccessful(_tokenId, stakingTimeElapsed);
-    }
-
-    function claimReward() external {
-        // uint256 _reward = getRewardToClaim(msg.sender);
-        // require(_reward > 0, "No tokens to claim.");
-
-        // if (rewardsToken.transfer(msg.sender, _reward) == true) {
-        //     uint256 _stakedTokensLength = getStakedTokens(msg.sender).length;
-        //     uint256 _currentTimestamp = block.timestamp;
-        //     for (uint256 i = 0; i < _stakedTokensLength;) {
-        //         bool _isMissionOver = isSpecificMissionOver(stakers[msg.sender].missions[i].startTimestamp, stakers[msg.sender].missions[i].duration, _currentTimestamp);
-        //         if (_isMissionOver) { // Don't mark as claimed if the next mission has already been started
-        //             stakers[msg.sender].tokensReceived[i] = true;
-        //         }
-        //         unchecked { ++i; }
-        //     }
-        //     stakers[msg.sender].tokensToClaim = 0;
-        // }
-        // else revert();
+            emit UnstakeSuccessful(_tokenIds[i], stakingTimeElapsed);
+        }
     }
 
     function removeStakerElement(uint256 _tokenIndex, uint256 _lastIndex) internal {
@@ -114,9 +111,6 @@ contract NFTStaker is ERC721Holder, ReentrancyGuard, Ownable {
 
         stakers[msg.sender].tokenIds[_tokenIndex] = stakers[msg.sender].tokenIds[_lastIndex];
         stakers[msg.sender].tokenIds.pop();
-
-        stakers[msg.sender].tokensReceived[_tokenIndex] = stakers[msg.sender].tokensReceived[_lastIndex];
-        stakers[msg.sender].tokensReceived.pop();
     }
 
     function isTokenStaked(uint256 _tokenId) public view returns(bool) {
@@ -136,24 +130,9 @@ contract NFTStaker is ERC721Holder, ReentrancyGuard, Ownable {
     function getStakedTimestamps(address _user) public view returns (uint256[] memory timestamps) {
         return stakers[_user].timestamps;
     }
-
-    function getRewardToClaim(address _user) public view returns (uint256) {
-        return 0;
-
-        // uint256 _tokensToClaim = stakers[_user].tokensToClaim;
-
-        // // Find out if some gelatos' missions are over and tokens were not received for them yet
-        // uint256 _stakedTokensLength = getStakedTokens(_user).length;
-
-        // uint256 _currentTimestamp = block.timestamp;
-        // for (uint256 i = 0; i < _stakedTokensLength;) {
-        //     if (!stakers[_user].tokensReceived[i] && isSpecificMissionOver(stakers[_user].missions[i].startTimestamp, stakers[_user].missions[i].duration, _currentTimestamp)) {
-        //         _tokensToClaim += getRewardForTokenIndexStaker(i, _user);
-        //     }
-        //     unchecked { ++i; }
-        // }
-
-        // return _tokensToClaim;
+    
+    function getStakerAddresses() public view returns (address[] memory) {
+        return stakersAddresses;
     }
 
 }
