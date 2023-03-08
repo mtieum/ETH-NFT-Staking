@@ -44,6 +44,7 @@ contract NFTStaker is ERC721Holder, ReentrancyGuard, Ownable {
     }
 
     function stake(uint256 _quantity) public nonReentrant {
+        require(_quantity >= stakeMinimum && _quantity <= stakeMaximum, "Stake amount incorrect");
         uint256 _previousSupply = stakedNft.totalSupply();
 
         for(uint256 i = 0; i < _quantity; i ++) {
