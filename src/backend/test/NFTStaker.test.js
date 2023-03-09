@@ -134,5 +134,24 @@ describe("NFTStaker", async function() {
             expect((await nftStaker.getPlaceholderTokenIds(addr2.address))[0]).to.equals(1);
             expect((await nftStaker.getStakerAddresses())[1]).to.equals(addr2.address);
         })
+
+        it("Should not be able to re stake the same Nft", async function() {
+            await stakedNft.connect(addr1).mint(3);
+            await stakedNft.connect(addr1).setApprovalForAll(nftStaker.address, true);
+
+            await nftStaker.connect(addr1).stake([2]);
+
+            const days = 30 * 24 * 60 * 60 + 10;
+            await helpers.time.increase(days);
+            
+            expect((await nftStaker.claimedNfts(2))).to.equals("0x0000000000000000000000000000000000000000");
+
+            await placeholderNft.connect(addr1).setApprovalForAll(nftStaker.address, true);
+            await nftStaker.connect(addr1).unstake([2]);
+
+            expect((await nftStaker.claimedNfts(2))).to.equals(addr1.address);
+            
+            await expect(nftStaker.connect(addr1).stake([2])).to.be.revertedWith('NFT already claimed');
+        })
     })
 })
