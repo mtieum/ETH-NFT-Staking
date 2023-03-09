@@ -7,10 +7,10 @@ async function main() {
 
   // goerli
   let teamWallet = "0xD71E736a7eF7a9564528D41c5c656c46c18a2AEd"; 
-  const QuirkiesTestnet = await ethers.getContractFactory("QuirkiesTestnet"); // Staked NFT
-  stakedNft = await QuirkiesTestnet.deploy();
-  console.log("QuirkiesTestnet contract address", stakedNft.address)
-  saveFrontendFiles(stakedNft, "QuirkiesTestnet");
+  const Quirkies = await ethers.getContractFactory("Quirkies"); // Staked NFT
+  stakedNft = await Quirkies.deploy();
+  console.log("Quirkies contract address", stakedNft.address)
+  saveFrontendFiles(stakedNft, "Quirkies");
   const stakedNftAddress = stakedNft.address
 
   // mainnet
