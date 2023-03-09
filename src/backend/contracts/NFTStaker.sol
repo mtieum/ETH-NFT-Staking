@@ -18,7 +18,7 @@ contract NFTStaker is ERC721Holder, ReentrancyGuard, Ownable {
     uint256 stakeMaximum = 10;
     uint256 stakePeriodInDays = 30;
 
-    mapping (uint256 => address) public claimedNfts;
+    mapping (uint256 => bool) public claimedNfts;
 
     struct Staker { 
         uint256[] tokenIds;
@@ -54,7 +54,7 @@ contract NFTStaker is ERC721Holder, ReentrancyGuard, Ownable {
         require(_quantity >= stakeMinimum && _quantity <= stakeMaximum, "Stake amount incorrect");
 
         for(uint256 i = 0; i < _quantity; i ++) {
-            require(claimedNfts[_tokenIds[i]] == address(0), "NFT already claimed");
+            require(claimedNfts[_tokenIds[i]] == false, "NFT already claimed");
             require(stakedNft.ownerOf(_tokenIds[i]) == msg.sender, "You do not own this Nft");
         }
 
@@ -105,7 +105,7 @@ contract NFTStaker is ERC721Holder, ReentrancyGuard, Ownable {
             
             if (stakingTimeElapsed) {
                 rewardNft.mintNFT(msg.sender, _tokenIds[i]);
-                claimedNfts[_tokenIds[i]] = msg.sender;
+                claimedNfts[_tokenIds[i]] = true;
             }
             removeStakerElement(msg.sender, _tokenIndex, stakers[msg.sender].tokenIds.length - 1);
 

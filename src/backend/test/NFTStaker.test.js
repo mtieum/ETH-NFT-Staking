@@ -144,12 +144,12 @@ describe("NFTStaker", async function() {
             const days = 30 * 24 * 60 * 60 + 10;
             await helpers.time.increase(days);
             
-            expect((await nftStaker.claimedNfts(2))).to.equals("0x0000000000000000000000000000000000000000");
+            expect((await nftStaker.claimedNfts(2))).to.equals(false);
 
             await placeholderNft.connect(addr1).setApprovalForAll(nftStaker.address, true);
             await nftStaker.connect(addr1).unstake([2]);
 
-            expect((await nftStaker.claimedNfts(2))).to.equals(addr1.address);
+            expect((await nftStaker.claimedNfts(2))).to.equals(true);
             
             await expect(nftStaker.connect(addr1).stake([2])).to.be.revertedWith('NFT already claimed');
         })
