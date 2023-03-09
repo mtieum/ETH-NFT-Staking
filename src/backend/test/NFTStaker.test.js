@@ -5,7 +5,7 @@ const toWei = (num) => ethers.utils.parseEther(num.toString())
 const fromWei = (num) => Math.round(ethers.utils.formatEther(num))
 
 describe("NFTStaker", async function() {
-    let deployer, addr1, addr2, nft, stakedNft, rewardNft, placeholderNft, nftStaker
+    let deployer, addr1, addr2, stakedNft, rewardNft, placeholderNft, nftStaker
     let teamWallet = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
     let baseUriPlaceholder = ""
     let baseUriReward = ""
