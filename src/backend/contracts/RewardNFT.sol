@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import {DefaultOperatorFilterer} from "./DefaultOperatorFilterer.sol";
 
 contract RewardNFT is ERC721, Pausable, Ownable, DefaultOperatorFilterer {
-
+    string private uri = "";
     uint256 private _totalSupply = 0;
     address private _stakingContract;
 
@@ -25,6 +25,14 @@ contract RewardNFT is ERC721, Pausable, Ownable, DefaultOperatorFilterer {
 
         string memory currentBaseURI = _baseURI();
         return string(abi.encodePacked(currentBaseURI, Strings.toString(_tokenId), ".json"));
+    }
+
+    function _baseURI() internal view override returns (string memory) {
+        return uri;
+    }
+
+    function setMetadata(string memory _uri) public onlyOwner {
+        uri = _uri;
     }
     
     modifier onlyStakingContract() {
