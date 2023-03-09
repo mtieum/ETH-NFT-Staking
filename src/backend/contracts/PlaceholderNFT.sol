@@ -5,8 +5,9 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
+import {DefaultOperatorFilterer} from "./DefaultOperatorFilterer.sol";
 
-contract PlaceholderNFT is ERC721, Pausable, Ownable {
+contract PlaceholderNFT is ERC721, Pausable, Ownable, DefaultOperatorFilterer {
 
     uint256 private _totalSupply = 0;
     address private _stakingContract;
@@ -51,5 +52,21 @@ contract PlaceholderNFT is ERC721, Pausable, Ownable {
 
     function unpause() external onlyOwner {
         _unpause();
+    }
+
+    function transferFrom(address from, address to, uint256 tokenId) public override onlyAllowedOperator(from) {
+        super.transferFrom(from, to, tokenId);
+    }
+
+    function safeTransferFrom(address from, address to, uint256 tokenId) public override onlyAllowedOperator(from) {
+        super.safeTransferFrom(from, to, tokenId);
+    }
+
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data)
+        public
+        override
+        onlyAllowedOperator(from)
+    {
+        super.safeTransferFrom(from, to, tokenId, data);
     }
 }
