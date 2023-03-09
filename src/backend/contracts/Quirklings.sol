@@ -12,8 +12,10 @@ contract Quirklings is Ownable, ERC721, ReentrancyGuard {
     uint256 public totalSupply = 0;
 
     uint256 public constant nftLimit = 10000;
-    uint256 public constant mintLimit = 5000;
-    uint256 public constant claimLimit = 5000;
+    // uint256 public constant mintLimit = 5000;
+    // uint256 public constant claimLimit = 5000;
+    uint256 public constant mintLimit = 10000;
+    uint256 public constant claimLimit = 0;
     uint256 public reserved = 50;
     uint256 public capWhitelist = 1;
     uint256 public capPublic = 1;
@@ -42,9 +44,9 @@ contract Quirklings is Ownable, ERC721, ReentrancyGuard {
     }
 
     function mint(uint256 _amount) public payable nonReentrant {
-        require(tx.origin == msg.sender, "Quirklings: Self Mint Only");
-        require(salePublic == true, "Quirklings: Not Started");
-        require(_amount <= capPublic, "Quirklings: Amount Limit");
+        // require(tx.origin == msg.sender, "Quirklings: Self Mint Only");
+        // require(salePublic == true, "Quirklings: Not Started");
+        // require(_amount <= capPublic, "Quirklings: Amount Limit");
         _mint(_amount);
     }
 
@@ -89,7 +91,7 @@ contract Quirklings is Ownable, ERC721, ReentrancyGuard {
     }
 
     function _mint(uint256 _amount) internal {
-        require(msg.value == nftPrice * _amount, "Quirklings: Incorrect Value");
+        // require(msg.value == nftPrice * _amount, "Quirklings: Incorrect Value");
         for (uint256 i = 0; i < _amount; i++) {
             uint256 _tokenId = claimLimit + mintCount + i;
             require(_tokenId < nftLimit - reserved, "Quirklings: Sold Out");

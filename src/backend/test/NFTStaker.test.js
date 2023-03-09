@@ -36,21 +36,21 @@ describe("NFTStaker", async function() {
             await expect(nftStaker.connect(addr1).stake([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])).to.be.revertedWith('Stake amount incorrect');
 
             await expect(nftStaker.connect(addr1).stake([0])).to.be.revertedWith('ERC721: invalid token ID');
-            await quirkiesNft.connect(addr2).mint(1);
+            await quirklingsNft.connect(addr2).mint(1);
             await expect(nftStaker.connect(addr1).stake([0])).to.be.revertedWith('You do not own this Nft');
-            await quirkiesNft.connect(addr1).mint(3);
+            await quirklingsNft.connect(addr1).mint(3);
             await expect(nftStaker.connect(addr1).stake([3])).to.be.revertedWith('ERC721: caller is not token owner or approved');
-            await quirkiesNft.connect(addr1).setApprovalForAll(nftStaker.address, true);
+            await quirklingsNft.connect(addr1).setApprovalForAll(nftStaker.address, true);
             await nftStaker.connect(addr1).stake([3]);
             expect((await placeholderNft.ownerOf(0))).to.equals(addr1.address);
             
             expect((await nftStaker.getStakedTokens(addr1.address))[0]).to.equals(3);
 
-            expect((await quirkiesNft.ownerOf(0))).to.equals(addr2.address);
-            expect((await quirkiesNft.ownerOf(1))).to.equals(addr1.address);
-            expect((await quirkiesNft.ownerOf(2))).to.equals(addr1.address);
-            expect((await quirkiesNft.ownerOf(3))).to.equals(nftStaker.address);
-            expect((await quirkiesNft.balanceOf(addr1.address))).to.equals(2);
+            expect((await quirklingsNft.ownerOf(0))).to.equals(addr2.address);
+            expect((await quirklingsNft.ownerOf(1))).to.equals(addr1.address);
+            expect((await quirklingsNft.ownerOf(2))).to.equals(addr1.address);
+            expect((await quirklingsNft.ownerOf(3))).to.equals(nftStaker.address);
+            expect((await quirklingsNft.balanceOf(addr1.address))).to.equals(2);
             expect((await placeholderNft.balanceOf(addr1.address))).to.equals(1);
 
             // Unstake after 10 days
@@ -60,11 +60,11 @@ describe("NFTStaker", async function() {
             await expect(nftStaker.connect(addr1).unstake([0])).to.be.revertedWith('Index not found for this staker.');
             
             {
-                expect((await quirkiesNft.ownerOf(0))).to.equals(addr2.address);
-                expect((await quirkiesNft.ownerOf(1))).to.equals(addr1.address);
-                expect((await quirkiesNft.ownerOf(2))).to.equals(addr1.address);
-                expect((await quirkiesNft.ownerOf(3))).to.equals(nftStaker.address);
-                expect((await quirkiesNft.balanceOf(addr1.address))).to.equals(2);
+                expect((await quirklingsNft.ownerOf(0))).to.equals(addr2.address);
+                expect((await quirklingsNft.ownerOf(1))).to.equals(addr1.address);
+                expect((await quirklingsNft.ownerOf(2))).to.equals(addr1.address);
+                expect((await quirklingsNft.ownerOf(3))).to.equals(nftStaker.address);
+                expect((await quirklingsNft.balanceOf(addr1.address))).to.equals(2);
             }
 
             await expect(nftStaker.connect(addr1).unstake([3])).to.be.revertedWith('ERC721: caller is not token owner or approved');
@@ -73,12 +73,12 @@ describe("NFTStaker", async function() {
 
             expect((await rewardNft.balanceOf(addr1.address))).to.equals(0);
             expect((await placeholderNft.balanceOf(addr1.address))).to.equals(0);
-            expect((await quirkiesNft.balanceOf(addr1.address))).to.equals(3);
+            expect((await quirklingsNft.balanceOf(addr1.address))).to.equals(3);
         })
 
         it("Should stake and claim rewards after elapsed time", async function() {
-            await quirkiesNft.connect(addr1).mint(3);
-            await quirkiesNft.connect(addr1).setApprovalForAll(nftStaker.address, true);
+            await quirklingsNft.connect(addr1).mint(3);
+            await quirklingsNft.connect(addr1).setApprovalForAll(nftStaker.address, true);
             await nftStaker.connect(addr1).stake([2]);
 
             // Unstake after 30 days
@@ -90,12 +90,12 @@ describe("NFTStaker", async function() {
             
             expect((await rewardNft.balanceOf(addr1.address))).to.equals(1);
             expect((await placeholderNft.balanceOf(addr1.address))).to.equals(0);
-            expect((await quirkiesNft.balanceOf(addr1.address))).to.equals(3);
+            expect((await quirklingsNft.balanceOf(addr1.address))).to.equals(3);
         })
 
         it("Should set correct metadata for placeholder and reward", async function() {
-            await quirkiesNft.connect(addr1).mint(3);
-            await quirkiesNft.connect(addr1).setApprovalForAll(nftStaker.address, true);
+            await quirklingsNft.connect(addr1).mint(3);
+            await quirklingsNft.connect(addr1).setApprovalForAll(nftStaker.address, true);
             await nftStaker.connect(addr1).stake([2]);
             
             expect((await placeholderNft.idToMetadataMapping(0))).to.equals(2);
@@ -119,10 +119,10 @@ describe("NFTStaker", async function() {
         })
 
         it("Should track staking wallets and display what is being staked currently", async function() {
-            await quirkiesNft.connect(addr1).mint(3);
-            await quirkiesNft.connect(addr2).mint(3);
-            await quirkiesNft.connect(addr1).setApprovalForAll(nftStaker.address, true);
-            await quirkiesNft.connect(addr2).setApprovalForAll(nftStaker.address, true);
+            await quirklingsNft.connect(addr1).mint(3);
+            await quirklingsNft.connect(addr2).mint(3);
+            await quirklingsNft.connect(addr1).setApprovalForAll(nftStaker.address, true);
+            await quirklingsNft.connect(addr2).setApprovalForAll(nftStaker.address, true);
 
             await nftStaker.connect(addr1).stake([2]);
 
@@ -138,8 +138,8 @@ describe("NFTStaker", async function() {
         })
 
         it("Should not be able to re stake the same Nft", async function() {
-            await quirkiesNft.connect(addr1).mint(3);
-            await quirkiesNft.connect(addr1).setApprovalForAll(nftStaker.address, true);
+            await quirklingsNft.connect(addr1).mint(3);
+            await quirklingsNft.connect(addr1).setApprovalForAll(nftStaker.address, true);
 
             await nftStaker.connect(addr1).stake([2]);
 
@@ -154,6 +154,25 @@ describe("NFTStaker", async function() {
             expect((await nftStaker.claimedNfts(2))).to.equals(true);
             
             await expect(nftStaker.connect(addr1).stake([2])).to.be.revertedWith('NFT already claimed');
+        })
+
+        it("Should stake and claim from the 2nd collection", async function() {
+            await quirkiesNft.connect(addr1).mint(3);
+            await quirkiesNft.connect(addr1).setApprovalForAll(nftStaker.address, true);
+
+            await nftStaker.connect(addr1).stake([10_002]);
+
+            const days = 30 * 24 * 60 * 60 + 10;
+            await helpers.time.increase(days);
+            
+            expect((await nftStaker.claimedNfts(10_002))).to.equals(false);
+
+            await placeholderNft.connect(addr1).setApprovalForAll(nftStaker.address, true);
+            await nftStaker.connect(addr1).unstake([10_002]);
+
+            expect((await nftStaker.claimedNfts(10_002))).to.equals(true);
+            
+            await expect(nftStaker.connect(addr1).stake([10_002])).to.be.revertedWith('NFT already claimed');
         })
     })
 })
