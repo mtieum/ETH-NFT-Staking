@@ -14,7 +14,7 @@ contract PlaceholderNFT is ERC721, Pausable, Ownable, DefaultOperatorFilterer {
 
     mapping (uint256 => uint256) public idToMetadataMapping;
 
-    constructor() ERC721("Placeholder Nft", "PN") {}
+    constructor() ERC721("Quirksville Questing", "QQ") {}
 
     // Mint an NFT with an incremental ID
     function mintNFT(address _user, uint256 assetId) external onlyStakingContract returns (uint256) {

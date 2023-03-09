@@ -12,7 +12,7 @@ contract RewardNFT is ERC721, Pausable, Ownable, DefaultOperatorFilterer {
     uint256 private _totalSupply = 0;
     address private _stakingContract;
 
-    constructor() ERC721("Reward Nft", "RN") {}
+    constructor() ERC721("Quirkmaster Trait Packs", "QTP") {}
 
     // Mint an NFT with an incremental ID
     function mintNFT(address _user, uint256 assetId) external onlyStakingContract {
