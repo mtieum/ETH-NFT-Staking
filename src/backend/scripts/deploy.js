@@ -1,21 +1,29 @@
 async function main() {
   const [deployer] = await ethers.getSigners();
-  let stakedNft, rewardNft, placeholderNft, nftStaker
+  let quirklingsNft, quirkiesNft, rewardNft, placeholderNft, nftStaker
 
   console.log("Deploying contracts with the account:", deployer.address);
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
   // goerli
   let teamWallet = "0xD71E736a7eF7a9564528D41c5c656c46c18a2AEd"; 
-  const Quirkies = await ethers.getContractFactory("Quirkies"); // Staked NFT
-  stakedNft = await Quirkies.deploy();
-  console.log("Quirkies contract address", stakedNft.address)
-  saveFrontendFiles(stakedNft, "Quirkies");
-  const stakedNftAddress = stakedNft.address
+  const Quirkies = await ethers.getContractFactory("Quirkies");
+  quirkiesNft = await Quirkies.deploy();
+  console.log("Quirkies contract address", quirkiesNft.address)
+  saveFrontendFiles(quirkiesNft, "Quirkies");
+
+  const Quirklings = await ethers.getContractFactory("Quirklings");
+  quirklingsNft = await Quirklings.deploy();
+  console.log("Quirklings contract address", quirklingsNft.address)
+  saveFrontendFiles(quirklingsNft, "Quirklings");
+
+  const quirklingsAddress = quirklingsNft.address
+  const quirkiesAddress = quirkiesNft.address
 
   // mainnet
-  // const stakedNftAddress = ""
   // let teamWallet = "0xD71E736a7eF7a9564528D41c5c656c46c18a2AEd";
+  // const quirklingsAddress = ""
+  // const quirkiesAddress = ""
 
   const RewardNFT = await ethers.getContractFactory("RewardNFT");
   const PlaceholderNFT = await ethers.getContractFactory("PlaceholderNFT");
@@ -29,7 +37,7 @@ async function main() {
   console.log("PlaceholderNFT contract address", placeholderNft.address)
   saveFrontendFiles(placeholderNft, "PlaceholderNFT");
 
-  nftStaker = await NFTStaker.deploy(teamWallet, stakedNftAddress, placeholderNft.address, rewardNft.address);
+  nftStaker = await NFTStaker.deploy(teamWallet, [quirklingsAddress, quirkiesAddress], placeholderNft.address, rewardNft.address);
   console.log("NFTStaker contract address", nftStaker.address)
   saveFrontendFiles(nftStaker, "NFTStaker");
 
@@ -37,7 +45,7 @@ async function main() {
   await placeholderNft.setStakingContract(nftStaker.address);
   
   if (teamWallet != deployer.address) {
-    await stakedNft.transferOwnership(teamWallet);
+    await quirklingsNft.transferOwnership(teamWallet);
     await rewardNft.transferOwnership(teamWallet);
     await placeholderNft.transferOwnership(teamWallet);
     await nftStaker.transferOwnership(teamWallet);
