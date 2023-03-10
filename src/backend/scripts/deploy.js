@@ -57,6 +57,7 @@ async function main() {
   await placeholderNft.setStakingContract(nftStaker.address);
   
   if (teamWallet != deployer.address) {
+    await quirkiesNft.transferOwnership(teamWallet);
     await quirklingsNft.transferOwnership(teamWallet);
     await rewardNft.transferOwnership(teamWallet);
     await placeholderNft.transferOwnership(teamWallet);
