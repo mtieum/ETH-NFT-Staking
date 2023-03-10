@@ -1,0 +1,218 @@
+{
+  "manifestVersion": "3.2",
+  "admin": {
+    "address": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+    "txHash": "0x98bc97b182ce6c347719952b38aca611d6142056c986a7b723bd5a0550005dd9"
+  },
+  "proxies": [
+    {
+      "address": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+      "txHash": "0x7ec8a99bea5230ff1da8c385368deffdd041ad62c346edf6318a8056ab1613e9",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
+      "txHash": "0x57c344925046e61daf85659383d2ad78c6fa60366067f7ba3e0afbc5dba7d5e5",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xc6e7DF5E7b4f2A278906862b61205850344D4e7d",
+      "txHash": "0x7e21f5156659d3823204b686d8d11fab1537275f2acebbdf1a77477677b7e070",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x09635F643e140090A9A8Dcd712eD6285858ceBef",
+      "txHash": "0x0775d53150a2e4d34afeddf4bb1465561e1ae0c921c2c28b50824f4cbb6b1687",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xa82fF9aFd8f496c3d6ac40E2a0F282E47488CFc9",
+      "txHash": "0x26ee627716f74c2bbc053c72c1bbc0a6b935cae4010528baa7ec804b7f8e9710",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x4826533B4897376654Bb4d4AD88B7faFD0C98528",
+      "txHash": "0xf72fc61b932213cc94ea5f792c7c016c1920eb48444a85ebb4995ddb19e57469",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x809d550fca64d94Bd9F66E60752A544199cfAC3D",
+      "txHash": "0xe69bf311608130fb55c7a2654de48f178734153f77bd80d489f4161c5aeb32b1",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x2bdCC0de6bE1f7D2ee689a0342D76F52E8EFABa3",
+      "txHash": "0xd8d34d1839e8f405e511cc61a43c1e05a16d36bfe4740a5556cb448fa2a0e3bc",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "32c4d50443a3f906be9464dbd093d920f249cade5ed2dda57b5a97eea3b16a0d": {
+      "address": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+      "txHash": "0x8d14ac9e19d89f9d16e4467455197eda748911bd7e653b785e27d6017c680961",
+      "layout": {
+        "solcVersion": "0.8.13",
+        "storage": [
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address",
+            "contract": "MyOwnable",
+            "src": "src\\backend\\contracts\\MyOwnable.sol:21"
+          },
+          {
+            "label": "_status",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256",
+            "contract": "ReentrancyGuard",
+            "src": "src\\backend\\contracts\\ReentrancyGuard.sol:37"
+          },
+          {
+            "label": "stakedNfts",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_array(t_contract(ERC721)1165)dyn_storage",
+            "contract": "NFTStaker",
+            "src": "src\\backend\\contracts\\NFTStaker.sol:15"
+          },
+          {
+            "label": "placeholderNft",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_contract(PlaceholderNFT)12316",
+            "contract": "NFTStaker",
+            "src": "src\\backend\\contracts\\NFTStaker.sol:17"
+          },
+          {
+            "label": "rewardNft",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_contract(RewardNFT)12587",
+            "contract": "NFTStaker",
+            "src": "src\\backend\\contracts\\NFTStaker.sol:18"
+          },
+          {
+            "label": "stakeMinimum",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint256",
+            "contract": "NFTStaker",
+            "src": "src\\backend\\contracts\\NFTStaker.sol:20"
+          },
+          {
+            "label": "stakeMaximum",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_uint256",
+            "contract": "NFTStaker",
+            "src": "src\\backend\\contracts\\NFTStaker.sol:21"
+          },
+          {
+            "label": "stakePeriod",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_uint256",
+            "contract": "NFTStaker",
+            "src": "src\\backend\\contracts\\NFTStaker.sol:23"
+          },
+          {
+            "label": "claimedNfts",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_mapping(t_uint256,t_bool)",
+            "contract": "NFTStaker",
+            "src": "src\\backend\\contracts\\NFTStaker.sol:25"
+          },
+          {
+            "label": "stakers",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_mapping(t_address,t_struct(Staker)11299_storage)",
+            "contract": "NFTStaker",
+            "src": "src\\backend\\contracts\\NFTStaker.sol:33"
+          },
+          {
+            "label": "stakersAddresses",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_array(t_address)dyn_storage",
+            "contract": "NFTStaker",
+            "src": "src\\backend\\contracts\\NFTStaker.sol:34"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_contract(ERC721)1165)dyn_storage": {
+            "label": "contract ERC721[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_uint256)dyn_storage": {
+            "label": "uint256[]",
+            "numberOfBytes": "32"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(ERC721)1165": {
+            "label": "contract ERC721",
+            "numberOfBytes": "20"
+          },
+          "t_contract(PlaceholderNFT)12316": {
+            "label": "contract PlaceholderNFT",
+            "numberOfBytes": "20"
+          },
+          "t_contract(RewardNFT)12587": {
+            "label": "contract RewardNFT",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_struct(Staker)11299_storage)": {
+            "label": "mapping(address => struct NFTStaker.Staker)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_bool)": {
+            "label": "mapping(uint256 => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Staker)11299_storage": {
+            "label": "struct NFTStaker.Staker",
+            "members": [
+              {
+                "label": "tokenIds",
+                "type": "t_array(t_uint256)dyn_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "placeholderTokenIds",
+                "type": "t_array(t_uint256)dyn_storage",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "timestamps",
+                "type": "t_array(t_uint256)dyn_storage",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          }
+        }
+      }
+    }
+  }
+}

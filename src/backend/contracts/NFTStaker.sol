@@ -3,22 +3,24 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+// import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+// import "@openzeppelin/contracts/access/Ownable.sol";
 import "hardhat/console.sol";
 import "./RewardNFT.sol";
 import "./PlaceholderNFT.sol";
+import "./ReentrancyGuard.sol";
+import "./MyOwnable.sol";
 
-contract NFTStaker is ERC721Holder, ReentrancyGuard, Ownable {
+contract NFTStaker is ERC721Holder, MyOwnable, ReentrancyGuard {
     ERC721[] public stakedNfts; // 10,000 Quirklings, 5,000 Quirkies
 
     PlaceholderNFT public placeholderNft;
     RewardNFT public rewardNft;
 
-    uint256 stakeMinimum = 1;
-    uint256 stakeMaximum = 10;
+    uint256 stakeMinimum;
+    uint256 stakeMaximum;
     // uint256 stakePeriod = 30 * 24 * 60 * 60; // 30 Days
-    uint256 stakePeriod = 5 * 60; // 5 Minutes
+    uint256 stakePeriod;
 
     mapping (uint256 => bool) public claimedNfts;
 
@@ -41,12 +43,18 @@ contract NFTStaker is ERC721Holder, ReentrancyGuard, Ownable {
         bool rewardClaimed
     );
 
-    constructor(uint256 _stakingPeriod, address _ownerAddress, address[] memory _stakedNfts, address _placeholderNftAddress, address _rewardNftAddress) {
-        initialize(_stakingPeriod, _ownerAddress, _stakedNfts, _placeholderNftAddress, _rewardNftAddress);
-    }
+    // constructor(uint256 _stakingPeriod, address _ownerAddress, address[] memory _stakedNfts, address _placeholderNftAddress, address _rewardNftAddress) {
+    //     initialize(_stakingPeriod, _ownerAddress, _stakedNfts, _placeholderNftAddress, _rewardNftAddress);
+    // }
 
-    function initialize(uint256 _stakingPeriod, address _ownerAddress, address[] memory _stakedNfts, address _placeholderNftAddress, address _rewardNftAddress) public {
+    function initialize(uint256 _stakeMinimum, uint256 _stakeMaximum, uint256 _stakingPeriod, address _ownerAddress, address[] memory _stakedNfts, address _placeholderNftAddress, address _rewardNftAddress) public {
+        _status = _NOT_ENTERED;
+        
+        stakeMinimum = _stakeMinimum;
+        stakeMaximum = _stakeMaximum;
         stakePeriod = _stakingPeriod;
+        
+        _transferOwnership(_msgSender());
         
         for(uint256 i = 0; i < _stakedNfts.length; i ++) {
             stakedNfts.push(ERC721(_stakedNfts[i]));
