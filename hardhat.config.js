@@ -3,7 +3,6 @@ require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-etherscan");
 require("@openzeppelin/hardhat-upgrades")
 require("dotenv").config();
-const { REACT_APP_API_URL, REACT_APP_PRIVATE_KEY } = process.env;
 
 module.exports = {
   solidity: "0.8.13",
@@ -13,8 +12,8 @@ module.exports = {
        url: process.env.REACT_APP_API_URL_GOERLI_INFURA,
        accounts: ['0x' + process.env.REACT_APP_PRIVATE_KEY_GOERLI],
        allowUnlimitedContractSize: true,
-       gas: 2000000,//20
-       gasPrice: 8000000000,//800
+       gas: 4100000,
+       gasPrice: 85000000000,
      },
     //  sepolia: {
     //    url: process.env.REACT_APP_API_URL_SEPOLIA_INFURA,

@@ -1,12 +1,13 @@
 const { ethers, upgrades } = require("hardhat")
+const fromWei = (num) => ethers.utils.formatEther(num)
 
 async function main() {
   const [deployer] = await ethers.getSigners();
   let quirklingsNft, quirkiesNft, rewardNft, placeholderNft, nftStaker
 
   console.log("Deploying contracts with the account:", deployer.address);
-  console.log("Account balance:", (await deployer.getBalance()).toString());
-
+  console.log("Account balance:", fromWei(await deployer.getBalance()).toString());
+  
   // goerli
   const stakingPeriod =  5 * 60; // 5 Minutes
   let teamWallet = "0x923129ECE79Ffb16B3cCb770474f6B672e68d8e0";
@@ -14,7 +15,7 @@ async function main() {
   quirkiesNft = await Quirkies.deploy();
   console.log("Quirkies contract address", quirkiesNft.address);
   saveFrontendFiles(quirkiesNft, "Quirkies");
-
+  return;
   const Quirklings = await ethers.getContractFactory("Quirklings");
   quirklingsNft = await Quirklings.deploy();
   console.log("Quirklings contract address", quirklingsNft.address);
