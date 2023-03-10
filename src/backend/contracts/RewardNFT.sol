@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import {DefaultOperatorFilterer} from "./DefaultOperatorFilterer.sol";
 
 contract RewardNFT is ERC721, Pausable, Ownable, DefaultOperatorFilterer {
-    string private uri = "";
+    string private uri = "ipfs://bafybeiay3rypuv7nvtnon7tetgj36jgtl6n34yk5sfph5umhwm3xdlmera";
     uint256 private _totalSupply = 0;
     address private _stakingContract;
 

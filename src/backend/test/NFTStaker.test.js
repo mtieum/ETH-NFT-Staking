@@ -1,4 +1,5 @@
 const { expect } = require("chai")
+const { ethers, upgrades } = require("hardhat")
 const helpers = require("@nomicfoundation/hardhat-network-helpers")
 
 const toWei = (num) => ethers.utils.parseEther(num.toString())
@@ -7,8 +8,8 @@ const fromWei = (num) => Math.round(ethers.utils.formatEther(num))
 describe("NFTStaker", async function() {
     let deployer, addr1, addr2, quirkiesNft, quirklingsNft, rewardNft, placeholderNft, nftStaker
     let teamWallet = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
-    let baseUriPlaceholder = ""
-    let baseUriReward = ""
+    let baseUriPlaceholder = "ipfs://bafybeiay3rypuv7nvtnon7tetgj36jgtl6n34yk5sfph5umhwm3xdlmera"
+    let baseUriReward = "ipfs://bafybeiay3rypuv7nvtnon7tetgj36jgtl6n34yk5sfph5umhwm3xdlmera"
 
     beforeEach(async function() {
         const Quirkies = await ethers.getContractFactory("Quirkies"); // staked NFT
@@ -24,13 +25,22 @@ describe("NFTStaker", async function() {
         quirklingsNft = await Quirklings.deploy();
         rewardNft = await RewardNFT.deploy();
         placeholderNft = await PlaceholderNFT.deploy();
-        nftStaker = await NFTStaker.deploy(teamWallet, [quirklingsNft.address, quirkiesNft.address], placeholderNft.address, rewardNft.address);
+        nftStaker = await NFTStaker.deploy(30 * 24 * 60 * 60, teamWallet, [quirklingsNft.address, quirkiesNft.address], placeholderNft.address, rewardNft.address);
 
         await rewardNft.setStakingContract(nftStaker.address);
         await placeholderNft.setStakingContract(nftStaker.address);
     });
 
     describe("Staking and unstaking", function() {
+        it("Should use the proxy structure", async function() {
+            const NFTStaker = await ethers.getContractFactory("NFTStaker");
+            // let nftStakerProxy = await upgrades.deployProxy(NFTStaker, [30 * 24 * 60 * 60, teamWallet, [quirklingsNft.address, quirkiesNft.address], placeholderNft.address, rewardNft.address], {
+            //     initializer: "initialize"
+            // });
+
+            // expect((await nftStakerProxy.placeholderNft())).to.equal(placeholderNft.address);
+        })
+
         it("Should stake and claim no rewards before elapsed time", async function() {
             await expect(nftStaker.connect(addr1).stake([])).to.be.revertedWith('Stake amount incorrect');
             await expect(nftStaker.connect(addr1).stake([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])).to.be.revertedWith('Stake amount incorrect');

@@ -1,3 +1,5 @@
+const { ethers, upgrades } = require("hardhat")
+
 async function main() {
   const [deployer] = await ethers.getSigners();
   let quirklingsNft, quirkiesNft, rewardNft, placeholderNft, nftStaker
@@ -6,24 +8,26 @@ async function main() {
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
   // goerli
-  let teamWallet = "0xD71E736a7eF7a9564528D41c5c656c46c18a2AEd"; 
+  const stakingPeriod =  5 * 60; // 5 Minutes
+  let teamWallet = "0x923129ECE79Ffb16B3cCb770474f6B672e68d8e0";
   const Quirkies = await ethers.getContractFactory("Quirkies");
   quirkiesNft = await Quirkies.deploy();
-  console.log("Quirkies contract address", quirkiesNft.address)
+  console.log("Quirkies contract address", quirkiesNft.address);
   saveFrontendFiles(quirkiesNft, "Quirkies");
 
   const Quirklings = await ethers.getContractFactory("Quirklings");
   quirklingsNft = await Quirklings.deploy();
-  console.log("Quirklings contract address", quirklingsNft.address)
+  console.log("Quirklings contract address", quirklingsNft.address);
   saveFrontendFiles(quirklingsNft, "Quirklings");
 
-  const quirklingsAddress = quirklingsNft.address
-  const quirkiesAddress = quirkiesNft.address
+  const quirklingsAddress = quirklingsNft.address;
+  const quirkiesAddress = quirkiesNft.address;
 
   // mainnet
   // let teamWallet = "0xD71E736a7eF7a9564528D41c5c656c46c18a2AEd";
   // const quirklingsAddress = ""
   // const quirkiesAddress = ""
+  // const stakingPeriod = 30 * 24 * 60 * 60; 30 Days
 
   const RewardNFT = await ethers.getContractFactory("RewardNFT");
   const PlaceholderNFT = await ethers.getContractFactory("PlaceholderNFT");
@@ -37,7 +41,15 @@ async function main() {
   console.log("PlaceholderNFT contract address", placeholderNft.address)
   saveFrontendFiles(placeholderNft, "PlaceholderNFT");
 
-  nftStaker = await NFTStaker.deploy(teamWallet, [quirklingsAddress, quirkiesAddress], placeholderNft.address, rewardNft.address);
+  const useProxy = false;
+  if (useProxy) {
+    nftStaker = await upgrades.deployProxy(NFTStaker, stakingPeriod, teamWallet, [quirklingsAddress, quirkiesAddress], placeholderNft.address, rewardNft.address, {
+      initializer: "constructor"
+    });
+    await nftStaker.deployed();
+  } else {
+    nftStaker = await NFTStaker.deploy(stakingPeriod, teamWallet, [quirklingsAddress, quirkiesAddress], placeholderNft.address, rewardNft.address);
+  }
   console.log("NFTStaker contract address", nftStaker.address)
   saveFrontendFiles(nftStaker, "NFTStaker");
 

@@ -17,7 +17,8 @@ contract NFTStaker is ERC721Holder, ReentrancyGuard, Ownable {
 
     uint256 stakeMinimum = 1;
     uint256 stakeMaximum = 10;
-    uint256 stakePeriodInDays = 30;
+    // uint256 stakePeriod = 30 * 24 * 60 * 60; // 30 Days
+    uint256 stakePeriod = 5 * 60; // 5 Minutes
 
     mapping (uint256 => bool) public claimedNfts;
 
@@ -40,7 +41,13 @@ contract NFTStaker is ERC721Holder, ReentrancyGuard, Ownable {
         bool rewardClaimed
     );
 
-    constructor(address _ownerAddress, address[] memory _stakedNfts, address _placeholderNftAddress, address _rewardNftAddress) {
+    constructor(uint256 _stakingPeriod, address _ownerAddress, address[] memory _stakedNfts, address _placeholderNftAddress, address _rewardNftAddress) {
+        initialize(_stakingPeriod, _ownerAddress, _stakedNfts, _placeholderNftAddress, _rewardNftAddress);
+    }
+
+    function initialize(uint256 _stakingPeriod, address _ownerAddress, address[] memory _stakedNfts, address _placeholderNftAddress, address _rewardNftAddress) public {
+        stakePeriod = _stakingPeriod;
+        
         for(uint256 i = 0; i < _stakedNfts.length; i ++) {
             stakedNfts.push(ERC721(_stakedNfts[i]));
         }
@@ -111,7 +118,7 @@ contract NFTStaker is ERC721Holder, ReentrancyGuard, Ownable {
                     msg.sender, 0x000000000000000000000000000000000000dEaD, stakers[msg.sender].placeholderTokenIds[i]);
             }
 
-            bool stakingTimeElapsed = block.timestamp > stakers[msg.sender].timestamps[_tokenIndex] + stakePeriodInDays * 24 * 60 * 60;
+            bool stakingTimeElapsed = block.timestamp > stakers[msg.sender].timestamps[_tokenIndex] + stakePeriod;
             
             if (stakingTimeElapsed) {
                 rewardNft.mintNFT(msg.sender, _tokenIds[i]);
