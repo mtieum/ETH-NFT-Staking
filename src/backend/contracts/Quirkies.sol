@@ -21,7 +21,7 @@ contract Quirkies is ERC721, Ownable, ReentrancyGuard {
 
     //bytes32 public merkleRoot;
 
-    string public baseURI = "ipfs://";
+    string public baseURI = "http://metadata.quirkies.io/";
 
     mapping(address => uint256) public presaleAddresses;
 

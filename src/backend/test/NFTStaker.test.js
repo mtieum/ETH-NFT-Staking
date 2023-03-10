@@ -174,5 +174,29 @@ describe("NFTStaker", async function() {
             
             await expect(nftStaker.connect(addr1).stake([10_002])).to.be.revertedWith('NFT already claimed');
         })
+
+        it("Should from 2 different collections in one transaction", async function() {
+            await quirkiesNft.connect(addr1).mint(3);
+            await quirkiesNft.connect(addr1).setApprovalForAll(nftStaker.address, true);
+            await quirklingsNft.connect(addr1).mint(3);
+            await quirklingsNft.connect(addr1).setApprovalForAll(nftStaker.address, true);
+
+            await nftStaker.connect(addr1).stake([1, 10_002]);
+
+            const days = 30 * 24 * 60 * 60 + 10;
+            await helpers.time.increase(days);
+            
+            expect((await nftStaker.claimedNfts(1))).to.equals(false);
+            expect((await nftStaker.claimedNfts(10_002))).to.equals(false);
+
+            await placeholderNft.connect(addr1).setApprovalForAll(nftStaker.address, true);
+            await nftStaker.connect(addr1).unstake([1, 10_002]);
+
+            expect((await nftStaker.claimedNfts(1))).to.equals(true);
+            expect((await nftStaker.claimedNfts(10_002))).to.equals(true);
+            
+            await expect(nftStaker.connect(addr1).stake([1])).to.be.revertedWith('NFT already claimed');
+            await expect(nftStaker.connect(addr1).stake([10_002])).to.be.revertedWith('NFT already claimed');
+        })
     })
 })

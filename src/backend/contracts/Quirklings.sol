@@ -28,7 +28,7 @@ contract Quirklings is Ownable, ERC721, ReentrancyGuard {
     uint256 public mintCount = 0;
     bytes32 public merkleRoot;
 
-    string public baseURI = "";
+    string public baseURI = "http://quirklings-metadata.quirkies.io/";
 
     mapping(address => uint256) public whitelistAddresses;
     mapping(uint256 => uint256) public claimedTokens;
