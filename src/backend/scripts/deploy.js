@@ -41,15 +41,15 @@ async function main() {
   console.log("PlaceholderNFT contract address", placeholderNft.address)
   saveFrontendFiles(placeholderNft, "PlaceholderNFT");
 
-  const useProxy = false;
-  if (useProxy) {
-    nftStaker = await upgrades.deployProxy(NFTStaker, stakingPeriod, teamWallet, [quirklingsAddress, quirkiesAddress], placeholderNft.address, rewardNft.address, {
-      initializer: "constructor"
-    });
-    await nftStaker.deployed();
-  } else {
-    nftStaker = await NFTStaker.deploy(stakingPeriod, teamWallet, [quirklingsAddress, quirkiesAddress], placeholderNft.address, rewardNft.address);
-  }
+  nftStakerProxy = await upgrades.deployProxy(
+    NFTStaker, 
+    [stakingPeriod, teamWallet, [quirklingsAddress, quirkiesAddress], placeholderNft.address, rewardNft.address],
+    {
+        initializer: "initialize"
+    }
+  );
+  await nftStakerProxy.deployed()
+
   console.log("NFTStaker contract address", nftStaker.address)
   saveFrontendFiles(nftStaker, "NFTStaker");
 
