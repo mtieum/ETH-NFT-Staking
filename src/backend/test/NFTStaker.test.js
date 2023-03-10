@@ -2,14 +2,14 @@ const { expect } = require("chai")
 const { upgrades } = require("hardhat")
 const helpers = require("@nomicfoundation/hardhat-network-helpers")
 
-const toWei = (num) => ethers.utils.parseEther(num.toString())
-const fromWei = (num) => Math.round(ethers.utils.formatEther(num))
+const toWei = (num) => ethers.utils.parseEther(num.toString());
+const fromWei = (num) => Math.round(ethers.utils.formatEther(num));
 
 describe("NFTStaker", async function() {
-    let deployer, addr1, addr2, quirkiesNft, quirklingsNft, rewardNft, placeholderNft, nftStakerProxy
-    let teamWallet = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
-    let baseUriPlaceholder = "ipfs://bafybeiay3rypuv7nvtnon7tetgj36jgtl6n34yk5sfph5umhwm3xdlmera"
-    let baseUriReward = "ipfs://bafybeiay3rypuv7nvtnon7tetgj36jgtl6n34yk5sfph5umhwm3xdlmera"
+    let deployer, addr1, addr2, quirkiesNft, quirklingsNft, rewardNft, placeholderNft, nftStakerProxy;
+    let teamWallet = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+    let baseUriPlaceholder = "ipfs://bafybeiay3rypuv7nvtnon7tetgj36jgtl6n34yk5sfph5umhwm3xdlmera";
+    let baseUriReward = "ipfs://bafybeiay3rypuv7nvtnon7tetgj36jgtl6n34yk5sfph5umhwm3xdlmera";
 
     beforeEach(async function() {
         const Quirkies = await ethers.getContractFactory("Quirkies"); // staked NFT
@@ -19,7 +19,7 @@ describe("NFTStaker", async function() {
         const NFTStaker = await ethers.getContractFactory("NFTStaker");
 
         [deployer, addr1, addr2] = await ethers.getSigners();
-        whitelist = [addr1.address, addr2.address]
+        whitelist = [addr1.address, addr2.address];
 
         quirkiesNft = await Quirkies.deploy();
         quirklingsNft = await Quirklings.deploy();
@@ -33,7 +33,7 @@ describe("NFTStaker", async function() {
                 initializer: "initialize"
             }
         );
-        await nftStakerProxy.deployed()
+        await nftStakerProxy.deployed();
 
         await rewardNft.setStakingContract(nftStakerProxy.address);
         await placeholderNft.setStakingContract(nftStakerProxy.address);
@@ -43,6 +43,10 @@ describe("NFTStaker", async function() {
         it("Should initialize the proxy variables", async function() {
             expect((await nftStakerProxy.placeholderNft())).to.equal(placeholderNft.address);
             expect((await nftStakerProxy.rewardNft())).to.equal(rewardNft.address);
+        })
+        
+        it("Should upgrade the contract", async function() {
+            // todo
         })
         
         it("Should stake and claim no rewards before elapsed time", async function() {

@@ -173,7 +173,7 @@ contract NFTStaker is ERC721Holder, MyOwnable, ReentrancyGuard {
     }
 
     function setStakeMaximum(uint256 _stakeMaximum) public onlyOwner {
-        stakeMaximum = stakeMaximum;
+        stakeMaximum = _stakeMaximum;
     }
 
 }
