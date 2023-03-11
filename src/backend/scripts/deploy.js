@@ -62,7 +62,7 @@ async function main() {
     await quirklingsNft.transferOwnership(teamWallet);
     await rewardNft.transferOwnership(teamWallet);
     await placeholderNft.transferOwnership(teamWallet);
-    await nftStakerProxy.transferOwnership(teamWallet);
+    // await nftStakerProxy.transferOwnership(teamWallet);
   }
 
   console.log("Setter calls done")
