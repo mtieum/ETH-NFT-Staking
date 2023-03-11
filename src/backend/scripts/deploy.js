@@ -44,7 +44,7 @@ async function main() {
 
   nftStakerProxy = await upgrades.deployProxy(
     NFTStaker, 
-    [stakingPeriod, teamWallet, [quirklingsAddress, quirkiesAddress], placeholderNft.address, rewardNft.address],
+    [1, 10, stakingPeriod, teamWallet, [quirklingsAddress, quirkiesAddress], placeholderNft.address, rewardNft.address],
     {
         initializer: "initialize"
     }
