@@ -7,7 +7,8 @@ const fromWei = (num) => Math.round(ethers.utils.formatEther(num));
 
 describe("NFTStaker", async function() {
     let deployer, addr1, addr2, quirkiesNft, quirklingsNft, rewardNft, placeholderNft, nftStakerProxy;
-    let teamWallet = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+    // let teamWallet = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+    let teamWallet = "";
     let baseUriPlaceholder = "ipfs://bafybeiay3rypuv7nvtnon7tetgj36jgtl6n34yk5sfph5umhwm3xdlmera";
     let baseUriReward = "ipfs://bafybeiay3rypuv7nvtnon7tetgj36jgtl6n34yk5sfph5umhwm3xdlmera";
 
@@ -20,6 +21,7 @@ describe("NFTStaker", async function() {
 
         [deployer, addr1, addr2] = await ethers.getSigners();
         whitelist = [addr1.address, addr2.address];
+        teamWallet = addr1.address;
 
         quirkiesNft = await Quirkies.deploy();
         quirklingsNft = await Quirklings.deploy();
@@ -46,9 +48,22 @@ describe("NFTStaker", async function() {
         })
         
         it("Should upgrade the contract", async function() {
-            // todo
+            expect((await nftStakerProxy.stakedNfts(0))).to.equals(quirklingsNft.address);
+            expect((await nftStakerProxy.stakedNfts(1))).to.equals(quirkiesNft.address);
+
+            const NFTStakerV2 = await ethers.getContractFactory("NFTStakerV2");
+            const nftStakerProxyV2 = await upgrades.upgradeProxy(nftStakerProxy.address, NFTStakerV2);
+            
+            expect((await nftStakerProxy.stakedNfts(0))).to.equals(quirklingsNft.address);
+            expect((await nftStakerProxy.stakedNfts(1))).to.equals(quirkiesNft.address);
+
+            await nftStakerProxyV2.connect(addr1).testUpgradedContract();
+
+            expect((await nftStakerProxy.stakedNfts(0))).to.equals(quirklingsNft.address);
+            
+            await expect(nftStakerProxy.stakedNfts(1)).to.be.reverted;
         })
-        
+
         it("Should stake and claim no rewards before elapsed time", async function() {
             await expect(nftStakerProxy.connect(addr1).stake([])).to.be.revertedWith('Stake amount incorrect');
             await expect(nftStakerProxy.connect(addr1).stake([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])).to.be.revertedWith('Stake amount incorrect');
