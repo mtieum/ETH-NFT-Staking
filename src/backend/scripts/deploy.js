@@ -3,7 +3,7 @@ const fromWei = (num) => ethers.utils.formatEther(num)
 
 async function main() {
   const [deployer] = await ethers.getSigners();
-  let quirklingsNft, quirkiesNft, rewardNft, placeholderNft, nftStaker
+  let quirklingsNft, quirkiesNft, rewardNft, placeholderNft, nftStakerProxy
 
   console.log("Deploying contracts with the account:", deployer.address);
   console.log("Account balance:", fromWei(await deployer.getBalance()).toString());
@@ -44,25 +44,25 @@ async function main() {
 
   nftStakerProxy = await upgrades.deployProxy(
     NFTStaker, 
-    [stakingPeriod, teamWallet, [quirklingsAddress, quirkiesAddress], placeholderNft.address, rewardNft.address],
+    [1, 10, stakingPeriod, teamWallet, [quirklingsAddress, quirkiesAddress], placeholderNft.address, rewardNft.address],
     {
         initializer: "initialize"
     }
   );
   await nftStakerProxy.deployed();
 
-  console.log("NFTStaker contract address", nftStaker.address);
-  saveFrontendFiles(nftStaker, "NFTStaker");
+  console.log("NFTStaker contract address", nftStakerProxy.address);
+  saveFrontendFiles(nftStakerProxy, "NFTStaker");
 
-  await rewardNft.setStakingContract(nftStaker.address);
-  await placeholderNft.setStakingContract(nftStaker.address);
+  await rewardNft.setStakingContract(nftStakerProxy.address);
+  await placeholderNft.setStakingContract(nftStakerProxy.address);
   
   if (teamWallet != deployer.address) {
     await quirkiesNft.transferOwnership(teamWallet);
     await quirklingsNft.transferOwnership(teamWallet);
     await rewardNft.transferOwnership(teamWallet);
     await placeholderNft.transferOwnership(teamWallet);
-    await nftStaker.transferOwnership(teamWallet);
+    // await nftStakerProxy.transferOwnership(teamWallet);
   }
 
   console.log("Setter calls done")

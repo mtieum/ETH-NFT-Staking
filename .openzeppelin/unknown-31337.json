@@ -2,54 +2,59 @@
   "manifestVersion": "3.2",
   "admin": {
     "address": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
-    "txHash": "0x98bc97b182ce6c347719952b38aca611d6142056c986a7b723bd5a0550005dd9"
+    "txHash": "0x06d85b7c831227c812e7f248a77ee8eb41945551fba98927237d64bdbf1338c6"
   },
   "proxies": [
     {
       "address": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
-      "txHash": "0x7ec8a99bea5230ff1da8c385368deffdd041ad62c346edf6318a8056ab1613e9",
+      "txHash": "0x50d4a00dd8784069f962cbe31fb3232c365f800054e5129c4a4fb81a1356513c",
       "kind": "transparent"
     },
     {
       "address": "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
-      "txHash": "0x57c344925046e61daf85659383d2ad78c6fa60366067f7ba3e0afbc5dba7d5e5",
+      "txHash": "0xc361f78c8ba6ec6f58bc9bf6e6c3abdaef6e7d038759836524949786afa42824",
       "kind": "transparent"
     },
     {
       "address": "0xc6e7DF5E7b4f2A278906862b61205850344D4e7d",
-      "txHash": "0x7e21f5156659d3823204b686d8d11fab1537275f2acebbdf1a77477677b7e070",
+      "txHash": "0x9ebe30e06319c1bcb8ca0c6b1add52226b33c4b9fc2783df72dd0312ce361540",
       "kind": "transparent"
     },
     {
       "address": "0x09635F643e140090A9A8Dcd712eD6285858ceBef",
-      "txHash": "0x0775d53150a2e4d34afeddf4bb1465561e1ae0c921c2c28b50824f4cbb6b1687",
+      "txHash": "0xabef7ba9b9e5ff7f710122ed2da86ccad13bb824a30914fd19d871fa13cf1e0b",
       "kind": "transparent"
     },
     {
       "address": "0xa82fF9aFd8f496c3d6ac40E2a0F282E47488CFc9",
-      "txHash": "0x26ee627716f74c2bbc053c72c1bbc0a6b935cae4010528baa7ec804b7f8e9710",
+      "txHash": "0xd3b3a49994ebe42ff1916f66e3a0c6ada974eb032a0f0a7d26166ab94d87ef74",
       "kind": "transparent"
     },
     {
       "address": "0x4826533B4897376654Bb4d4AD88B7faFD0C98528",
-      "txHash": "0xf72fc61b932213cc94ea5f792c7c016c1920eb48444a85ebb4995ddb19e57469",
+      "txHash": "0x877f1c042f18e107c4c8d36e8229ce9debd865a0790b5df6e76fef0bbe59ec8e",
       "kind": "transparent"
     },
     {
       "address": "0x809d550fca64d94Bd9F66E60752A544199cfAC3D",
-      "txHash": "0xe69bf311608130fb55c7a2654de48f178734153f77bd80d489f4161c5aeb32b1",
+      "txHash": "0x93ef95881a32711cc49f96dbf0d4e907ae0bea459f52fe3181b83375dd790571",
       "kind": "transparent"
     },
     {
       "address": "0x2bdCC0de6bE1f7D2ee689a0342D76F52E8EFABa3",
-      "txHash": "0xd8d34d1839e8f405e511cc61a43c1e05a16d36bfe4740a5556cb448fa2a0e3bc",
+      "txHash": "0xba0043f2b02972d2948f44471f2be2b6c8c6202ece0425e157186fc4384dabf7",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xB0D4afd8879eD9F52b28595d31B441D079B2Ca07",
+      "txHash": "0x16d92404c52f8628bfcd5bb442ffcdfcdb01bfd9d2cb61818631e83f1433725b",
       "kind": "transparent"
     }
   ],
   "impls": {
-    "32c4d50443a3f906be9464dbd093d920f249cade5ed2dda57b5a97eea3b16a0d": {
+    "43d65e2b8cbc7b2ab2adf8c1fd4e6fdbd2dda8841c8a5785d5ecbb575c001ac6": {
       "address": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
-      "txHash": "0x8d14ac9e19d89f9d16e4467455197eda748911bd7e653b785e27d6017c680961",
+      "txHash": "0xa923065da58fcbafec6162113be8ad5f704988de536744b8901e44e1e3a999ff",
       "layout": {
         "solcVersion": "0.8.13",
         "storage": [
@@ -73,7 +78,7 @@
             "label": "stakedNfts",
             "offset": 0,
             "slot": "2",
-            "type": "t_array(t_contract(ERC721)1165)dyn_storage",
+            "type": "t_array(t_contract(ERC721)1302)dyn_storage",
             "contract": "NFTStaker",
             "src": "src\\backend\\contracts\\NFTStaker.sol:15"
           },
@@ -81,7 +86,7 @@
             "label": "placeholderNft",
             "offset": 0,
             "slot": "3",
-            "type": "t_contract(PlaceholderNFT)12316",
+            "type": "t_contract(PlaceholderNFT)14834",
             "contract": "NFTStaker",
             "src": "src\\backend\\contracts\\NFTStaker.sol:17"
           },
@@ -89,7 +94,7 @@
             "label": "rewardNft",
             "offset": 0,
             "slot": "4",
-            "type": "t_contract(RewardNFT)12587",
+            "type": "t_contract(RewardNFT)16354",
             "contract": "NFTStaker",
             "src": "src\\backend\\contracts\\NFTStaker.sol:18"
           },
@@ -129,7 +134,7 @@
             "label": "stakers",
             "offset": 0,
             "slot": "9",
-            "type": "t_mapping(t_address,t_struct(Staker)11299_storage)",
+            "type": "t_mapping(t_address,t_struct(Staker)12049_storage)",
             "contract": "NFTStaker",
             "src": "src\\backend\\contracts\\NFTStaker.sol:33"
           },
@@ -151,7 +156,7 @@
             "label": "address[]",
             "numberOfBytes": "32"
           },
-          "t_array(t_contract(ERC721)1165)dyn_storage": {
+          "t_array(t_contract(ERC721)1302)dyn_storage": {
             "label": "contract ERC721[]",
             "numberOfBytes": "32"
           },
@@ -163,19 +168,19 @@
             "label": "bool",
             "numberOfBytes": "1"
           },
-          "t_contract(ERC721)1165": {
+          "t_contract(ERC721)1302": {
             "label": "contract ERC721",
             "numberOfBytes": "20"
           },
-          "t_contract(PlaceholderNFT)12316": {
+          "t_contract(PlaceholderNFT)14834": {
             "label": "contract PlaceholderNFT",
             "numberOfBytes": "20"
           },
-          "t_contract(RewardNFT)12587": {
+          "t_contract(RewardNFT)16354": {
             "label": "contract RewardNFT",
             "numberOfBytes": "20"
           },
-          "t_mapping(t_address,t_struct(Staker)11299_storage)": {
+          "t_mapping(t_address,t_struct(Staker)12049_storage)": {
             "label": "mapping(address => struct NFTStaker.Staker)",
             "numberOfBytes": "32"
           },
@@ -183,7 +188,7 @@
             "label": "mapping(uint256 => bool)",
             "numberOfBytes": "32"
           },
-          "t_struct(Staker)11299_storage": {
+          "t_struct(Staker)12049_storage": {
             "label": "struct NFTStaker.Staker",
             "members": [
               {
