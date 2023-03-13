@@ -70,6 +70,56 @@ describe("NFTStaker", async function() {
             expect((await nftStakerProxy.rewardNft())).to.equal(rewardNft.address);
         })
 
+        it("Should keep all staking data after upgrading", async function() {
+            await expect(nftStakerProxy.connect(addr1).stake([])).to.be.revertedWith('Stake amount incorrect');
+            await expect(nftStakerProxy.connect(addr1).stake([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])).to.be.revertedWith('Stake amount incorrect');
+
+            await expect(nftStakerProxy.connect(addr1).stake([0])).to.be.revertedWith('ERC721: invalid token ID');
+            await quirklingsNft.connect(addr2).mint(1);
+            await expect(nftStakerProxy.connect(addr1).stake([0])).to.be.revertedWith('You do not own this Nft');
+            await quirklingsNft.connect(addr1).mint(3);
+            await expect(nftStakerProxy.connect(addr1).stake([3])).to.be.revertedWith('ERC721: caller is not token owner or approved');
+            await quirklingsNft.connect(addr1).setApprovalForAll(nftStakerProxy.address, true);
+            await nftStakerProxy.connect(addr1).stake([3]);
+            expect((await placeholderNft.ownerOf(0))).to.equals(addr1.address);
+            
+            expect((await nftStakerProxy.getStakedTokens(addr1.address))[0]).to.equals(3);
+            
+            const NFTStakerV2 = await ethers.getContractFactory("NFTStakerV2");
+            await upgrades.upgradeProxy(nftStakerProxy.address, NFTStakerV2);
+            
+            expect((await nftStakerProxy.getStakedTokens(addr1.address))[0]).to.equals(3);
+
+            expect((await quirklingsNft.ownerOf(0))).to.equals(addr2.address);
+            expect((await quirklingsNft.ownerOf(1))).to.equals(addr1.address);
+            expect((await quirklingsNft.ownerOf(2))).to.equals(addr1.address);
+            expect((await quirklingsNft.ownerOf(3))).to.equals(nftStakerProxy.address);
+            expect((await quirklingsNft.balanceOf(addr1.address))).to.equals(2);
+            expect((await placeholderNft.balanceOf(addr1.address))).to.equals(1);
+
+            // Unstake after 10 days
+            const days = 10 * 24 * 60 * 60 + 10;
+            await helpers.time.increase(days);
+
+            await expect(nftStakerProxy.connect(addr1).unstake([0])).to.be.revertedWith('Index not found for this staker.');
+            
+            {
+                expect((await quirklingsNft.ownerOf(0))).to.equals(addr2.address);
+                expect((await quirklingsNft.ownerOf(1))).to.equals(addr1.address);
+                expect((await quirklingsNft.ownerOf(2))).to.equals(addr1.address);
+                expect((await quirklingsNft.ownerOf(3))).to.equals(nftStakerProxy.address);
+                expect((await quirklingsNft.balanceOf(addr1.address))).to.equals(2);
+            }
+
+            await expect(nftStakerProxy.connect(addr1).unstake([3])).to.be.revertedWith('ERC721: caller is not token owner or approved');
+            await placeholderNft.connect(addr1).setApprovalForAll(nftStakerProxy.address, true);
+            await nftStakerProxy.connect(addr1).unstake([3]);
+
+            expect((await rewardNft.balanceOf(addr1.address))).to.equals(0);
+            expect((await placeholderNft.balanceOf(addr1.address))).to.equals(0);
+            expect((await quirklingsNft.balanceOf(addr1.address))).to.equals(3);
+        })
+
         it("Should stake and claim no rewards before elapsed time", async function() {
             await expect(nftStakerProxy.connect(addr1).stake([])).to.be.revertedWith('Stake amount incorrect');
             await expect(nftStakerProxy.connect(addr1).stake([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])).to.be.revertedWith('Stake amount incorrect');
