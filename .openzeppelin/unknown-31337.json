@@ -121,11 +121,6 @@
       "kind": "transparent"
     },
     {
-      "address": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
-      "txHash": "0x491950e568f824ca6bb69f787cdcd86ad9155bf893470b2cc5f17961fcb6a008",
-      "kind": "transparent"
-    },
-    {
       "address": "0x0B306BF915C4d645ff596e518fAf3F9669b97016",
       "txHash": "0x2f4077bbfcc3c0ea14bb13f67ceb42662a3acb8b6f1d5904f8ed2c82deee7cd1",
       "kind": "transparent"
@@ -168,6 +163,11 @@
     {
       "address": "0xD8a5a9b31c3C0232E196d518E89Fd8bF83AcAd43",
       "txHash": "0x59e1a4072f3bb79ebc51597b0cb715dd733616cd7f4758a9977576b6d7f9d736",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+      "txHash": "0x5bb7b67e1e70ed1bbcbc98da912161e7ba36374dc52d04ffa2343296b4c3401c",
       "kind": "transparent"
     }
   ],
@@ -508,7 +508,7 @@
     },
     "43d65e2b8cbc7b2ab2adf8c1fd4e6fdbd2dda8841c8a5785d5ecbb575c001ac6": {
       "address": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
-      "txHash": "0x1735b120848658d6b1da739f162a55725a06be812159dcc9d8632192fdd78706",
+      "txHash": "0xdefb4d6f7d5e4ebc8a97797fe64e9fb041382241d1a200f539476bffe6d02a08",
       "layout": {
         "solcVersion": "0.8.13",
         "storage": [
@@ -518,7 +518,7 @@
             "slot": "0",
             "type": "t_address",
             "contract": "MyOwnable",
-            "src": "src\\backend\\contracts\\MyOwnable.sol:21"
+            "src": "src/backend/contracts/MyOwnable.sol:21"
           },
           {
             "label": "_status",
@@ -526,7 +526,7 @@
             "slot": "1",
             "type": "t_uint256",
             "contract": "ReentrancyGuard",
-            "src": "src\\backend\\contracts\\ReentrancyGuard.sol:37"
+            "src": "src/backend/contracts/ReentrancyGuard.sol:37"
           },
           {
             "label": "stakedNfts",
@@ -534,7 +534,7 @@
             "slot": "2",
             "type": "t_array(t_contract(ERC721)1165)dyn_storage",
             "contract": "NFTStaker",
-            "src": "src\\backend\\contracts\\NFTStaker.sol:15"
+            "src": "src/backend/contracts/NFTStaker.sol:15"
           },
           {
             "label": "placeholderNft",
@@ -542,7 +542,7 @@
             "slot": "3",
             "type": "t_contract(PlaceholderNFT)12316",
             "contract": "NFTStaker",
-            "src": "src\\backend\\contracts\\NFTStaker.sol:17"
+            "src": "src/backend/contracts/NFTStaker.sol:17"
           },
           {
             "label": "rewardNft",
@@ -550,7 +550,7 @@
             "slot": "4",
             "type": "t_contract(RewardNFT)12587",
             "contract": "NFTStaker",
-            "src": "src\\backend\\contracts\\NFTStaker.sol:18"
+            "src": "src/backend/contracts/NFTStaker.sol:18"
           },
           {
             "label": "stakeMinimum",
@@ -558,7 +558,7 @@
             "slot": "5",
             "type": "t_uint256",
             "contract": "NFTStaker",
-            "src": "src\\backend\\contracts\\NFTStaker.sol:20"
+            "src": "src/backend/contracts/NFTStaker.sol:20"
           },
           {
             "label": "stakeMaximum",
@@ -566,7 +566,7 @@
             "slot": "6",
             "type": "t_uint256",
             "contract": "NFTStaker",
-            "src": "src\\backend\\contracts\\NFTStaker.sol:21"
+            "src": "src/backend/contracts/NFTStaker.sol:21"
           },
           {
             "label": "stakePeriod",
@@ -574,7 +574,7 @@
             "slot": "7",
             "type": "t_uint256",
             "contract": "NFTStaker",
-            "src": "src\\backend\\contracts\\NFTStaker.sol:23"
+            "src": "src/backend/contracts/NFTStaker.sol:23"
           },
           {
             "label": "claimedNfts",
@@ -582,7 +582,7 @@
             "slot": "8",
             "type": "t_mapping(t_uint256,t_bool)",
             "contract": "NFTStaker",
-            "src": "src\\backend\\contracts\\NFTStaker.sol:25"
+            "src": "src/backend/contracts/NFTStaker.sol:25"
           },
           {
             "label": "stakers",
@@ -590,7 +590,7 @@
             "slot": "9",
             "type": "t_mapping(t_address,t_struct(Staker)11299_storage)",
             "contract": "NFTStaker",
-            "src": "src\\backend\\contracts\\NFTStaker.sol:33"
+            "src": "src/backend/contracts/NFTStaker.sol:33"
           },
           {
             "label": "stakersAddresses",
@@ -598,7 +598,7 @@
             "slot": "10",
             "type": "t_array(t_address)dyn_storage",
             "contract": "NFTStaker",
-            "src": "src\\backend\\contracts\\NFTStaker.sol:34"
+            "src": "src/backend/contracts/NFTStaker.sol:34"
           }
         ],
         "types": {
